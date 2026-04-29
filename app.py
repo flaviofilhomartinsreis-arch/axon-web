@@ -92,7 +92,7 @@ with st.sidebar:
     st.markdown("---")
     opcao = st.radio(
         "MENU DE GESTÃO",
-        ["Painel Operacional", "Análise de Risco Humano", "Emissão de Documentos"]
+        ["Painel Operacional", "Análise de Risco Humano", "Auditoria (15 NRs)"]
     )
     st.markdown("---")
     st.caption("Engenheiro Responsável:")
@@ -115,7 +115,6 @@ st.markdown(f"""
 # --- CONTEÚDO POR MÓDULO ---
 
 if opcao == "Painel Operacional":
-    # Linha de Indicadores (KPIs)
     col1, col2, col3, col4 = st.columns(4)
     
     metricas = [
@@ -135,8 +134,6 @@ if opcao == "Painel Operacional":
             """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    # Área de Dados e Gráfico
     c_esq, c_dir = st.columns([2, 1])
 
     with c_esq:
@@ -169,23 +166,48 @@ if opcao == "Painel Operacional":
 elif opcao == "Análise de Risco Humano":
     st.subheader("🔥 Monitoramento Preditivo de Fadiga")
     st.info("Este módulo analisa a jornada acumulada para prevenir erros humanos em operações críticas.")
-    # Placeholder para o mapa de calor que faremos a seguir
     st.warning("Dados sendo processados conforme logs de jornada (NR-10 / SEP).")
 
-elif opcao == "Emissão de Documentos":
-    st.subheader("📝 Documentação Técnica e Comercial")
-    with st.container():
-        st.markdown('<div class="card-metrica">', unsafe_allow_html=True)
-        cliente = st.text_input("NOME DO CLIENTE / PROJETO")
-        tipo_doc = st.selectbox("TIPO DE DOCUMENTO", [
-            "Laudo Técnico NR-10", 
-            "Prontuário de Instalações Elétricas", 
-            "Análise Preliminar de Risco (APR)", 
-            "Proposta Comercial Premium"
-        ])
-        if st.button("GERAR DOCUMENTO OFICIAL"):
-            st.success(f"Documento para '{cliente}' gerado com sucesso e pronto para assinatura.")
-        st.markdown('</div>', unsafe_allow_html=True)
+elif opcao == "Auditoria (15 NRs)":
+    st.markdown("### 🔍 Diagnóstico de Conformidade Normativa")
+    
+    lista_nrs = [
+        "NR-01 - Gerenciamento de Riscos Ocupacionais (GRO)", "NR-05 - CIPA", "NR-06 - EPI", 
+        "NR-07 - PCMSO", "NR-09 - Avaliação e Controle de Exposições", 
+        "NR-10 - Segurança em Instalações e Serviços em Eletricidade", 
+        "NR-12 - Segurança em Máquinas e Equipamentos", "NR-13 - Caldeiras e Vasos", 
+        "NR-15 - Atividades Insalubres", "NR-16 - Atividades Perigosas", 
+        "NR-17 - Ergonomia", "NR-18 - Indústria da Construção",
+        "NR-23 - Proteção Contra Incêndios", "NR-33 - Espaços Confinados", "NR-35 - Trabalho em Altura"
+    ]
+    
+    nr_selecionada = st.selectbox("Selecione a NR para auditoria:", lista_nrs)
+    
+    st.markdown('<div class="card-metrica">', unsafe_allow_html=True)
+    st.subheader(f"Avaliação Técnica: {nr_selecionada}")
+    
+    if "NR-10" in nr_selecionada:
+        st.write("**Itens Críticos de Verificação (Carro-chefe Axon):**")
+        col_a, col_b = st.columns(2)
+        with col_a:
+            q1 = st.checkbox("Prontuário de Instalações Elétricas (PIE) organizado?")
+            q2 = st.checkbox("Esquemas Unifilares atualizados e assinados?")
+            q3 = st.checkbox("Laudo de Inspeção do SPDA válido?")
+        with col_b:
+            q4 = st.checkbox("Certificações de treinamento (Básico/SEP) válidas?")
+            q5 = st.checkbox("Procedimentos de LOTO (Bloqueio e Etiquetagem) ativos?")
+            
+        conformidade = sum([q1, q2, q3, q4, q5]) / 5
+        st.markdown("---")
+        st.write(f"**Índice de Adequação:** {conformidade*100:.0f}%")
+        st.progress(conformidade)
+        
+        if st.button("GERAR RELATÓRIO DE AUDITORIA NR-10"):
+            st.success("Relatório gerado com sucesso para exportação.")
+    else:
+        st.info(f"O checklist detalhado para a {nr_selecionada.split(' - ')[0]} está sendo integrado ao SIGOS.")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- RODAPÉ TÉCNICO ---
 st.markdown("<br><br>", unsafe_allow_html=True)
