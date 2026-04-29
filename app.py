@@ -1,4 +1,4 @@
-    import streamlit as st
+import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from fpdf import FPDF
@@ -80,15 +80,14 @@ if opcao == "Auditoria 15 NRs":
     st.metric("Nível de Adequação Técnica", f"{conformidade:.1f}%")
     st.progress(conformidade / 100)
 
-    # --- LÓGICA DE GERAÇÃO DO PDF ---
     if st.button("GERAR E BAIXAR RELATÓRIO PDF"):
         pdf = PDF()
         pdf.add_page()
         pdf.set_font('Arial', 'B', 14)
-        pdf.cell(0, 10, f'Relatório de Auditoria: {nr_sel}', 0, 1)
+        pdf.cell(0, 10, f'Relatorio de Auditoria: {nr_sel}', 0, 1)
         pdf.set_font('Arial', '', 12)
         pdf.cell(0, 10, f'Cliente: {cliente}', 0, 1)
-        pdf.cell(0, 10, f'Responsável Técnico: Eng. Flávio Filho Martins Reis', 0, 1)
+        pdf.cell(0, 10, f'Responsavel Tecnico: Eng. Flavio Filho Martins Reis', 0, 1)
         pdf.ln(5)
         
         pdf.set_font('Arial', 'B', 11)
@@ -97,13 +96,14 @@ if opcao == "Auditoria 15 NRs":
         
         for idx, item in enumerate(itens):
             status = "[OK]" if respostas[idx] else "[PENDENTE]"
-            pdf.multi_cell(0, 8, f'{status} {item}')
+            # Removendo acentos do item para evitar erros no FPDF padrão
+            item_limpo = item.encode('ascii', 'ignore').decode('ascii')
+            pdf.multi_cell(0, 8, f'{status} {item_limpo}')
         
         pdf.ln(5)
         pdf.set_font('Arial', 'B', 12)
-        pdf.cell(0, 10, f'Índice Final de Conformidade: {conformidade:.1f}%', 0, 1)
+        pdf.cell(0, 10, f'Indice Final de Conformidade: {conformidade:.1f}%', 0, 1)
         
-        # Salva o PDF em memória para o Streamlit
         pdf_output = pdf.output(dest='S').encode('latin-1')
         st.download_button(
             label="Clique aqui para baixar o PDF",
@@ -114,8 +114,7 @@ if opcao == "Auditoria 15 NRs":
     st.markdown('</div>', unsafe_allow_html=True)
 
 elif opcao == "Painel Operacional":
-    st.info("Utilize o módulo de Auditoria para gerar relatórios técnicos.")
+    st.info("Utilize o modulo de Auditoria para gerar relatorios tecnicos.")
 
-# --- RODAPÉ ---
 st.markdown("---")
 st.markdown("<p style='text-align:center; color:#64748b; font-size:0.8rem;'>Axon Consultoria e Engenharia</p>", unsafe_allow_html=True)
