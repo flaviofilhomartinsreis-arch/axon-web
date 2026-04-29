@@ -1,74 +1,119 @@
-# --- MÓDULO: GESTÃO DE PROFISSIONAIS (ESTILO DATA LIFE) ---
-elif opcao == "Painel Operacional":
-    st.markdown('<div class="header-axon">', unsafe_allow_html=True)
-    col_t1, col_t2 = st.columns([3, 1])
-    with col_t1:
-        st.subheader("Relatório de Profissionais")
-    with col_t2:
-        if st.button("➕ Cadastrar profissional"):
-            st.info("Funcionalidade de cadastro em desenvolvimento.")
-    st.markdown('</div>', unsafe_allow_html=True)
+import streamlit as st
+import pandas as pd
 
-    # --- BARRA DE FILTROS DE STATUS ---
-    status_opcoes = ["Todos", "Habilitados", "Em análise", "Reprovados", "Rascunhos", "Desmobilizados"]
-    tabs = st.tabs(status_opcoes) # Simula os botões superiores do modelo
-    
-    # --- FILTROS DE PESQUISA ---
-    with st.expander("🔍 Filtros de Busca", expanded=True):
-        c1, c2, c3, c4 = st.columns(4)
-        with c1: st.selectbox("Tipo de atuação/Polo", ["Todos", "Argo 6", "Argo 8", "Argo 9"])
-        with c2: st.selectbox("SubContratadas", ["Todas", "DELUZ PRESTADORA", "Outras"])
-        with c3: st.selectbox("Unidade operacional", ["Todas", "Norte", "Sul"])
-        with c4: st.text_input("Pesquisa de profissional", placeholder="Nome do colaborador...")
+# --- CONFIGURAÇÃO DA PÁGINA ---
+st.set_page_config(layout="wide", page_title="Axon - Gestão de Profissionais", page_icon="🛡️")
 
-    # --- DADOS EXEMPLO (SIMULANDO A TABELA DA IMAGEM) ---
-    dados_profissionais = [
-        {"Profissional": "ADAM BRUNO SILVA SANTOS", "Cargo": "Encarregado de Equipe", "Polo": "Argo 8", "Status": "Desmobilizado", "Data": "15/12/2025"},
-        {"Profissional": "ADRYAN MIKAUE ALMEIDA FERNANDES", "Cargo": "Operador de Moto Serra", "Polo": "Argo 8", "Status": "Desmobilizado", "Data": "15/12/2025"},
-        {"Profissional": "ALISSON FILGUEIRA DA SILVA", "Cargo": "Operador de Moto Serra", "Polo": "Argo 8", "Status": "Desmobilizado", "Data": "15/12/2025"},
-        {"Profissional": "ANTONIO AUGUSTO MENDES VIEIRA", "Cargo": "Encarregado de Equipe", "Polo": "Argo 8", "Status": "Rascunhos", "Data": "16/09/2025"},
-    ]
-
-    # --- RENDERIZAÇÃO DA TABELA ESTILIZADA ---
-    st.markdown("""
-        <style>
-        .tabela-header { background-color: #f8fafc; font-weight: bold; padding: 10px; border-bottom: 2px solid #e2e8f0; }
-        .tabela-linha { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; transition: 0.3s; }
-        .tabela-linha:hover { background-color: #f1f5f9; }
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
-        .status-desmobilizado { color: #64748b; background-color: #f1f5f9; }
-        .status-rascunho { color: #f59e0b; background-color: #fef3c7; }
-        </style>
+# --- ESTILIZAÇÃO CSS (PARA FICAR IGUAL À DATA LIFE) ---
+st.markdown("""
+    <style>
+    .stApp { background-color: #ffffff; }
+    /* Topo Azul Estilo Data Life */
+    .main-header {
+        background-color: #1e40af;
+        padding: 10px 20px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .tabela-bg {
+        background-color: #f8fafc;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    .badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .status-desmobilizado { background-color: #e2e8f0; color: #64748b; }
+    .status-rascunho { background-color: #fef3c7; color: #d97706; }
+    </style>
     """, unsafe_allow_html=True)
 
+# --- NAVEGAÇÃO LATERAL ---
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/1063/1063302.png", width=50)
+    st.title("Painel Axon")
+    opcao = st.radio("Menu", ["Relatório de Profissionais", "Auditoria de NRs", "Risco Humano"])
+
+# --- CONTEÚDO PRINCIPAL ---
+
+if opcao == "Relatório de Profissionais":
+    # Cabeçalho Superior
+    st.markdown("""
+        <div class="main-header">
+            <span style="font-weight: bold;">DATALIFE GLOBAL | AXON</span>
+            <span style="font-size: 12px;">VITTORIA DA SILVA BRITO - deluzps@gmail.com</span>
+        </div>
+    """, unsafe_allow_html=True)
+
+    col_tit, col_btn = st.columns([3, 1])
+    with col_tit:
+        st.subheader("Relatório de Profissionais")
+    with col_btn:
+        st.button("Cadastrar profissional", use_container_width=True)
+
+    # --- BOTÕES DE STATUS (TABS) ---
+    st.tabs(["Todos", "Habilitados", "Em análise", "Reprovados", "Rascunhos", "Desmobilizados"])
+
+    # --- FILTROS DE BUSCA ---
+    with st.container():
+        c1, c2, c3 = st.columns(3)
+        with c1: st.selectbox("Tipo de atuação/Polo", ["Todos", "Argo 6", "Argo 8", "Argo 9"])
+        with c2: st.selectbox("SubContratadas", ["Todas", "DELUZ PRESTADORA", "Outras"])
+        with c3: st.text_input("Pesquisa de profissional", placeholder="Nome do colaborador...")
+        st.button("Pesquisar", type="primary")
+
+    st.markdown("---")
+
+    # --- TABELA DE PROFISSIONAIS (ESTILO WHATSAPP IMAGE) ---
+    # Simulando os dados da imagem enviada
+    dados = [
+        {"nome": "ADAM BRUNO SILVA SANTOS", "cargo": "Encarregado de Equipe", "polo": "Argo 8", "status": "Desmobilizado", "data": "15/12/2025"},
+        {"nome": "ADRYAN MIKAUE ALMEIDA FERNANDES", "cargo": "Operador de Moto Serra", "polo": "Argo 8", "status": "Desmobilizado", "data": "15/12/2025"},
+        {"nome": "ALISSON FILGUEIRA DA SILVA", "cargo": "Operador de Moto Serra", "polo": "Argo 8", "status": "Desmobilizado", "data": "15/12/2025"},
+        {"nome": "ANTONIO AUGUSTO MENDES VIEIRA", "cargo": "Encarregado de Equipe", "polo": "Argo 8", "status": "Rascunhos", "data": "16/09/2025"},
+    ]
+
     # Cabeçalho da Tabela
-    h1, h2, h3, h4, h5 = st.columns([3, 2, 2, 2, 1])
-    h1.markdown("**Profissional**")
-    h2.markdown("**Tipo de atuação/Polo**")
-    h3.markdown("**Status do Cadastro**")
-    h4.markdown("**Última atualização**")
-    h5.markdown("**Ficha**")
+    t1, t2, t3, t4, t5 = st.columns([3, 2, 2, 2, 1])
+    t1.markdown("**Profissional**")
+    t2.markdown("**Tipo de atuação/Polo**")
+    t3.markdown("**Status do Cadastro**")
+    t4.markdown("**Data da última atualização**")
+    t5.markdown("**Ficha**")
     st.divider()
 
     # Linhas da Tabela
-    for p in dados_profissionais:
+    for p in dados:
         l1, l2, l3, l4, l5 = st.columns([3, 2, 2, 2, 1])
         
-        # Coluna 1: Nome e Cargo
-        l1.markdown(f"**{p['Profissional']}**<br><span style='font-size:0.8rem; color:#64748b;'>{p['Cargo']}</span>", unsafe_allow_html=True)
+        # Coluna 1: Nome e Empresa Sublinhada
+        l1.markdown(f"**{p['nome']}**<br><span style='font-size:10px; color:gray;'>{p['cargo']}<br>ARGO ENERGIA | DELUZ PRESTADORA</span>", unsafe_allow_html=True)
         
-        # Coluna 2: Polo
-        l2.write(p['Polo'])
+        l2.write(p['polo'])
         
-        # Coluna 3: Status com Badge
-        status_class = "status-rascunho" if p['Status'] == "Rascunhos" else "status-desmobilizado"
-        l3.markdown(f"<span class='status-badge {status_class}'>{p['Status']}</span>", unsafe_allow_html=True)
+        # Status com Badge Colorida
+        cor_badge = "status-rascunho" if p['status'] == "Rascunhos" else "status-desmobilizado"
+        l3.markdown(f"<span class='badge {cor_badge}'>{p['status']}</span>", unsafe_allow_html=True)
         
-        # Coluna 4: Data
-        l4.write(p['Data'])
+        l4.write(p['data'])
         
-        # Coluna 5: Ícone PDF (Botão funcional)
-        if l5.button("📝", key=p['Profissional']):
-            st.toast(f"Abrindo ficha de {p['Profissional']}...")
+        # Ícone de PDF
+        l5.button("📄", key=p['nome'])
 
-    st.markdown(f"<p style='color:#64748b; font-size:0.8rem; margin-top:20px;'>Mostrando {len(dados_profissionais)} Profissionais</p>", unsafe_allow_html=True)
+    st.caption(f"Mostrando {len(dados)} de 81 Profissionais")
+
+elif opcao == "Auditoria de NRs":
+    st.title("Auditoria Técnica de NRs")
+    st.info("Módulo de checklists configurado conforme normas vigentes.")
+
+elif opcao == "Risco Humano":
+    st.title("Análise de Risco Humano")
+    st.warning("Monitoramento de fadiga em tempo real.")
