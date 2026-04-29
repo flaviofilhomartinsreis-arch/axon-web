@@ -1,123 +1,165 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(layout="wide", page_title="AXON Intelligence", page_icon="🛡️")
+st.set_page_config(layout="wide", page_title="AXON | Gestão de Riscos", page_icon="🛡️")
 
-# --- CSS PREMIUM (UI/UX INDUSTRIAL) ---
+# --- CSS CORPORATIVO (DESIGN SOBRIO) ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap');
     
-    /* Global */
-    .stApp { background-color: #0d1117; color: #e6edf3; font-family: 'Roboto', sans-serif; }
-    
-    /* Sidebar Dark */
-    [data-testid="stSidebar"] { background-color: #161b22; border-right: 1px solid #30363d; }
-    
-    /* Header Comand Center */
-    .header-box {
-        background: linear-gradient(135deg, #064e3b 0%, #042f24 100%);
-        padding: 2rem;
-        border-radius: 12px;
-        border-left: 8px solid #d4af37;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    .stApp {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #1e293b;
     }
-    
-    /* Cartões de Monitoramento */
-    .stat-card {
-        background: #1c2128;
+
+    /* Barra Lateral */
+    [data-testid="stSidebar"] {
+        background-color: #0f172a;
+        color: white;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
+
+    /* Cabeçalho de Autoridade */
+    .header-painel {
+        background-color: #ffffff;
+        padding: 1.5rem 2rem;
+        border-radius: 8px;
+        border-bottom: 3px solid #059669;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Cartões de Indicadores */
+    .card-metrica {
+        background-color: #ffffff;
         padding: 1.5rem;
-        border-radius: 10px;
-        border: 1px solid #30363d;
-        text-align: center;
-        transition: 0.3s ease;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        text-align: left;
     }
-    .stat-card:hover { border-color: #d4af37; transform: translateY(-5px); }
-    .stat-val { font-size: 2.5rem; font-weight: 700; color: #d4af37; }
-    .stat-label { color: #8b949e; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
-    
-    /* Tabelas Modernas */
-    .stDataFrame { border-radius: 10px; overflow: hidden; border: 1px solid #30363d; }
+    .titulo-metrica {
+        color: #64748b;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .valor-metrica {
+        color: #0f172a;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    /* Botão Profissional */
+    .stButton>button {
+        background-color: #059669;
+        color: white !important;
+        border-radius: 4px;
+        border: none;
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        width: 100%;
+    }
+    .stButton>button:hover {
+        background-color: #047857;
+    }
+
+    /* Ajuste de Tabelas */
+    div[data-testid="stTable"] {
+        background-color: white;
+        border-radius: 4px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- SIDEBAR E NAVEGAÇÃO ---
+# --- NAVEGAÇÃO LATERAL ---
 with st.sidebar:
-    st.markdown("<h1 style='color: #d4af37; font-size: 22px;'>AXON <span style='color:#fff; font-weight:300;'>INTELLIGENCE</span></h1>", unsafe_allow_html=True)
+    st.markdown("## AXON CONSULTORIA")
     st.markdown("---")
-    menu = st.radio("SISTEMA OPERACIONAL", ["COMMAND CENTER", "HUMAN RISK MAP", "ENGINEERING DOCS"])
+    opcao = st.radio(
+        "MÓDULOS DE GESTÃO",
+        ["Painel de Controle", "Análise de Risco Humano", "Emissão de Documentos"]
+    )
     st.markdown("---")
-    st.caption("Engenheiro Responsável")
+    st.caption("Engenheiro Responsável:")
     st.markdown("**Flávio Filho Martins Reis**")
 
-# --- CABEÇALHO ---
-st.markdown("""
-    <div class="header-box">
-        <h2 style='margin:0; color:#d4af37;'>AXON CONTROL PANEL</h2>
-        <p style='margin:0; color:#fff; opacity:0.8;'>Monitoramento em Tempo Real | Planta: Argo 8 - Deluz</p>
+# --- CONTEÚDO PRINCIPAL ---
+
+# Cabeçalho Fixo
+st.markdown(f"""
+    <div class="header-painel">
+        <h2 style='margin:0; color:#0f172a;'>{opcao.upper()}</h2>
+        <p style='margin:0; color:#64748b;'>Sistema Integrado de Engenharia e Segurança Operacional</p>
     </div>
     """, unsafe_allow_html=True)
 
-# --- COMAND CENTER (DASHBOARD) ---
-if menu == "COMMAND CENTER":
-    # KPIs Superiores
-    c1, c2, c3, c4 = st.columns(4)
-    with c1: st.markdown('<div class="stat-card"><div class="stat-label">Ativos Ativos</div><div class="stat-val">142</div></div>', unsafe_allow_html=True)
-    with c2: st.markdown('<div class="stat-card"><div class="stat-label">HHT S/ Acidentes</div><div class="stat-val">4.2k</div></div>', unsafe_allow_html=True)
-    with c3: st.markdown('<div class="stat-card"><div class="stat-label">Alertas Críticos</div><div class="stat-val" style="color:#ff7b72;">02</div></div>', unsafe_allow_html=True)
-    with c4: st.markdown('<div class="stat-card"><div class="stat-label">Compliance</div><div class="stat-val">98%</div></div>', unsafe_allow_html=True)
-
-    st.markdown("---")
+if opcao == "Painel de Controle":
+    # Linha de Indicadores (KPIs)
+    col1, col2, col3, col4 = st.columns(4)
     
-    col_left, col_right = st.columns([2, 1])
+    metricas = [
+        ("Equipamentos Ativos", "142"),
+        ("Horas Sem Acidentes", "4.210"),
+        ("Alertas de Segurança", "02"),
+        ("Conformidade Legal", "98,4%")
+    ]
     
-    with col_left:
-        st.markdown("### 📋 Status da Força de Trabalho")
-        df = pd.DataFrame({
-            "Profissional": ["ADRIANO SILVA", "CARLOS OLIVEIRA", "MARIANA SANTOS", "JOÃO PEDRO"],
-            "Especialidade": ["Téc. Redes", "Eletricista SEP", "SST", "Eng. Campo"],
-            "Risco Humano": ["Baixo", "Médio", "Baixo", "Crítico"],
-            "Check-in": ["07:45", "08:12", "07:30", "09:05"]
-        })
-        st.table(df) # Tabela limpa para contraste no dark mode
+    for i, (titulo, valor) in enumerate(metricas):
+        with [col1, col2, col3, col4][i]:
+            st.markdown(f"""
+                <div class="card-metrica">
+                    <div class="titulo-metrica">{titulo}</div>
+                    <div class="valor-metrica">{valor}</div>
+                </div>
+            """, unsafe_allow_html=True)
 
-    with col_right:
-        st.markdown("### 📊 Disponibilidade")
-        # Gráfico Donut de Eficiência
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Área de Dados
+    c_esq, c_dir = st.columns([2, 1])
+
+    with c_esq:
+        st.markdown("### 📋 Status da Equipe em Campo")
+        dados_equipe = {
+            "Profissional": ["Adriano Silva", "Carlos Oliveira", "Mariana Santos", "João Pedro"],
+            "Especialidade": ["Téc. de Redes", "Eletricista SEP", "Sup. SST", "Eng. de Campo"],
+            "Nível de Risco": ["Baixo", "Médio", "Baixo", "Crítico"],
+            "Jornada Atual": ["08h 15min", "04h 30min", "06h 00min", "10h 45min"]
+        }
+        st.table(pd.DataFrame(dados_equipe))
+
+    with c_dir:
+        st.markdown("### 📊 Disponibilidade Operacional")
         fig = go.Figure(go.Pie(
             values=[98.4, 1.6],
             labels=['Operacional', 'Manutenção'],
-            hole=.7,
-            marker_colors=['#d4af37', '#30363d']
+            hole=.6,
+            marker_colors=['#059669', '#e2e8f0']
         ))
-        fig.update_layout(showlegend=False, margin=dict(t=0, b=0, l=0, r=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+        fig.update_layout(
+            showlegend=True,
+            legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5),
+            margin=dict(t=0, b=0, l=10, r=10),
+            height=280
+        )
         st.plotly_chart(fig, use_container_width=True)
 
-# --- MAPA DE RISCO ---
-elif menu == "HUMAN RISK MAP":
-    st.subheader("🔥 Análise de Calor Preditiva")
-    st.markdown("Probabilidade de Erro Humano por setor (Baseado em fadiga acumulada).")
-    
-    # Simulação de Gráfico de Calor
-    data = [[1, 20, 30], [20, 1, 60], [30, 60, 1]]
-    fig_heat = px.imshow(data, 
-                         labels=dict(x="Turno", y="Setor", color="Nível de Risco"),
-                         x=['Manhã', 'Tarde', 'Noite'],
-                         y=['Rede Elétrica', 'Subestação', 'Administrativo'],
-                         color_continuous_scale=['#064e3b', '#d4af37', '#ff7b72'])
-    st.plotly_chart(fig_heat, use_container_width=True)
-
-# --- PROPOSTAS ---
-elif menu == "ENGINEERING DOCS":
-    st.markdown("### 📝 Emissão de Documentos Técnicos")
+elif opcao == "Emissão de Documentos":
+    st.markdown("### 📝 Gerador de Propostas e Laudos Técnicos")
     with st.container():
-        st.markdown('<div class="stat-card">', unsafe_allow_html=True)
-        cli = st.text_input("NOME DO CLIENTE / PROJETO")
-        tipo = st.selectbox("TIPO DE LAUDO", ["NR-10", "Prontuário Elétrico", "Análise de Risco SEP"])
-        if st.button("GERAR PROTOCOLO"):
-            st.success(f"Protocolo AXON-{cli[:3].upper()}-2024 gerado.")
+        st.markdown('<div class="card-metrica">', unsafe_allow_html=True)
+        cliente = st.text_input("NOME DO CLIENTE / CONTRATANTE")
+        tipo_doc = st.selectbox("TIPO DE DOCUMENTO", ["Laudo NR-10", "Prontuário Elétrico", "Análise de Risco", "Proposta Comercial"])
+        if st.button("GERAR DOCUMENTO OFICIAL"):
+            st.success(f"Documento para {cliente} preparado para exportação.")
         st.markdown('</div>', unsafe_allow_html=True)
+
+elif opcao == "Análise de Risco Humano":
+    st.info("Módulo de análise preditiva baseado em dados de jornada e fadiga.")
+    st.warning("Aguardando integração com sensores biométricos ou logs de entrada.")
