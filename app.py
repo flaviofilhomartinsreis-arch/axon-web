@@ -3,9 +3,13 @@ import pandas as pd
 import plotly.graph_objects as go
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(layout="wide", page_title="AXON | Gestão de Riscos", page_icon="🛡️")
+st.set_page_config(
+    layout="wide", 
+    page_title="Axon Consultoria e Engenharia", 
+    page_icon="🛡️"
+)
 
-# --- CSS CORPORATIVO (DESIGN SOBRIO) ---
+# --- ESTILIZAÇÃO CSS (VISUAL CORPORATIVO DE ALTO PADRÃO) ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap');
@@ -19,35 +23,36 @@ st.markdown("""
     /* Barra Lateral */
     [data-testid="stSidebar"] {
         background-color: #0f172a;
-        color: white;
     }
     [data-testid="stSidebar"] * {
         color: white !important;
     }
 
     /* Cabeçalho de Autoridade */
-    .header-painel {
+    .header-axon {
         background-color: #ffffff;
         padding: 1.5rem 2rem;
         border-radius: 8px;
-        border-bottom: 3px solid #059669;
+        border-bottom: 4px solid #059669; /* Verde Esmeralda */
         margin-bottom: 2rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
     }
 
     /* Cartões de Indicadores */
     .card-metrica {
         background-color: #ffffff;
-        padding: 1.5rem;
+        padding: 1.2rem;
         border-radius: 6px;
         border: 1px solid #e2e8f0;
         text-align: left;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .titulo-metrica {
         color: #64748b;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 600;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     .valor-metrica {
         color: #0f172a;
@@ -62,51 +67,61 @@ st.markdown("""
         border-radius: 4px;
         border: none;
         font-weight: 600;
-        padding: 0.5rem 1.5rem;
+        padding: 0.6rem 1.5rem;
         width: 100%;
+        transition: 0.3s;
     }
     .stButton>button:hover {
         background-color: #047857;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
     }
 
-    /* Ajuste de Tabelas */
+    /* Tabelas */
     div[data-testid="stTable"] {
         background-color: white;
         border-radius: 4px;
+        border: 1px solid #e2e8f0;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- NAVEGAÇÃO LATERAL ---
 with st.sidebar:
-    st.markdown("## AXON CONSULTORIA")
+    st.markdown("### AXON")
+    st.markdown("<p style='font-size:0.85rem; opacity:0.8;'>Consultoria e Engenharia</p>", unsafe_allow_html=True)
     st.markdown("---")
     opcao = st.radio(
-        "MÓDULOS DE GESTÃO",
-        ["Painel de Controle", "Análise de Risco Humano", "Emissão de Documentos"]
+        "MENU DE GESTÃO",
+        ["Painel Operacional", "Análise de Risco Humano", "Emissão de Documentos"]
     )
     st.markdown("---")
     st.caption("Engenheiro Responsável:")
     st.markdown("**Flávio Filho Martins Reis**")
+    st.markdown("---")
+    st.caption("Sistema SIGOS v1.2.5")
 
-# --- CONTEÚDO PRINCIPAL ---
-
-# Cabeçalho Fixo
+# --- CABEÇALHO PRINCIPAL ---
 st.markdown(f"""
-    <div class="header-painel">
-        <h2 style='margin:0; color:#0f172a;'>{opcao.upper()}</h2>
-        <p style='margin:0; color:#64748b;'>Sistema Integrado de Engenharia e Segurança Operacional</p>
+    <div class="header-axon">
+        <h1 style='margin:0; color:#0f172a; font-size: 1.8rem; letter-spacing: -0.5px;'>
+            AXON <span style='font-weight:300;'>CONSULTORIA E ENGENHARIA</span>
+        </h1>
+        <p style='margin:0; color:#059669; font-weight: 600; font-size: 0.9rem; text-transform: uppercase;'>
+            {opcao} | Sistema Integrado de Gestão e Segurança
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
-if opcao == "Painel de Controle":
+# --- CONTEÚDO POR MÓDULO ---
+
+if opcao == "Painel Operacional":
     # Linha de Indicadores (KPIs)
     col1, col2, col3, col4 = st.columns(4)
     
     metricas = [
         ("Equipamentos Ativos", "142"),
-        ("Horas Sem Acidentes", "4.210"),
-        ("Alertas de Segurança", "02"),
+        ("HHT Sem Acidentes", "4.210"),
+        ("Alertas Pendentes", "02"),
         ("Conformidade Legal", "98,4%")
     ]
     
@@ -121,21 +136,21 @@ if opcao == "Painel de Controle":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Área de Dados
+    # Área de Dados e Gráfico
     c_esq, c_dir = st.columns([2, 1])
 
     with c_esq:
         st.markdown("### 📋 Status da Equipe em Campo")
         dados_equipe = {
-            "Profissional": ["Adriano Silva", "Carlos Oliveira", "Mariana Santos", "João Pedro"],
+            "Colaborador": ["Adriano Silva", "Carlos Oliveira", "Mariana Santos", "João Pedro"],
             "Especialidade": ["Téc. de Redes", "Eletricista SEP", "Sup. SST", "Eng. de Campo"],
-            "Nível de Risco": ["Baixo", "Médio", "Baixo", "Crítico"],
-            "Jornada Atual": ["08h 15min", "04h 30min", "06h 00min", "10h 45min"]
+            "Risco": ["Baixo", "Médio", "Baixo", "Crítico"],
+            "Status": ["Em Operação", "Em Pausa", "Em Operação", "Alerta de Fadiga"]
         }
         st.table(pd.DataFrame(dados_equipe))
 
     with c_dir:
-        st.markdown("### 📊 Disponibilidade Operacional")
+        st.markdown("### 📊 Disponibilidade")
         fig = go.Figure(go.Pie(
             values=[98.4, 1.6],
             labels=['Operacional', 'Manutenção'],
@@ -146,20 +161,49 @@ if opcao == "Painel de Controle":
             showlegend=True,
             legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5),
             margin=dict(t=0, b=0, l=10, r=10),
-            height=280
+            height=280,
+            paper_bgcolor='rgba(0,0,0,0)'
         )
         st.plotly_chart(fig, use_container_width=True)
 
+elif opcao == "Análise de Risco Humano":
+    st.subheader("🔥 Monitoramento Preditivo de Fadiga")
+    st.info("Este módulo analisa a jornada acumulada para prevenir erros humanos em operações críticas.")
+    # Placeholder para o mapa de calor que faremos a seguir
+    st.warning("Dados sendo processados conforme logs de jornada (NR-10 / SEP).")
+
 elif opcao == "Emissão de Documentos":
-    st.markdown("### 📝 Gerador de Propostas e Laudos Técnicos")
+    st.subheader("📝 Documentação Técnica e Comercial")
     with st.container():
         st.markdown('<div class="card-metrica">', unsafe_allow_html=True)
-        cliente = st.text_input("NOME DO CLIENTE / CONTRATANTE")
-        tipo_doc = st.selectbox("TIPO DE DOCUMENTO", ["Laudo NR-10", "Prontuário Elétrico", "Análise de Risco", "Proposta Comercial"])
+        cliente = st.text_input("NOME DO CLIENTE / PROJETO")
+        tipo_doc = st.selectbox("TIPO DE DOCUMENTO", [
+            "Laudo Técnico NR-10", 
+            "Prontuário de Instalações Elétricas", 
+            "Análise Preliminar de Risco (APR)", 
+            "Proposta Comercial Premium"
+        ])
         if st.button("GERAR DOCUMENTO OFICIAL"):
-            st.success(f"Documento para {cliente} preparado para exportação.")
+            st.success(f"Documento para '{cliente}' gerado com sucesso e pronto para assinatura.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-elif opcao == "Análise de Risco Humano":
-    st.info("Módulo de análise preditiva baseado em dados de jornada e fadiga.")
-    st.warning("Aguardando integração com sensores biométricos ou logs de entrada.")
+# --- RODAPÉ TÉCNICO ---
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("---")
+col_f1, col_f2 = st.columns([3, 1])
+
+with col_f1:
+    st.markdown("""
+        <p style='color: #64748b; font-size: 0.8rem;'>
+            &copy; 2024 <b>Axon Consultoria e Engenharia</b>. Todos os direitos reservados.<br>
+            Responsabilidade Técnica: <b>Eng. Flávio Filho Martins Reis</b>
+        </p>
+    """, unsafe_allow_html=True)
+
+with col_f2:
+    st.markdown("""
+        <p style='text-align: right; color: #64748b; font-size: 0.8rem;'>
+            Ambiente Seguro 🛡️<br>
+            <b>SIGOS v1.2.5-STABLE</b>
+        </p>
+    """, unsafe_allow_html=True)
