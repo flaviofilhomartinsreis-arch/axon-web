@@ -1,86 +1,106 @@
 import streamlit as st
 import pandas as pd
 
-# --- CONFIGURAÇÕES BÁSICAS ---
-NOME_EMPRESA = "NOME DA EMPRESA DA SÓCIA"
-CNPJ_SÓCIA = "00.000.000/0001-00"
-ENG_RESPONSAVEL = "Flávio Filho Martins Reis"
-REGISTRO_ENG = "CREA-SP XXXXXX"
+# --- CONFIGURAÇÃO DA PÁGINA ---
+st.set_page_config(layout="wide", page_title="AXON | Intelligence", page_icon="🛡️")
 
-# --- CONFIGURAÇÃO DE CORES EXCLUSIVAS AXON ---
-COLOR_PRIMARY = "#064e3b" # Verde Esmeralda
-COLOR_ACCENT = "#d4af37"  # Dourado Champagne
-COLOR_BG = "#f8fafc"      
-
-st.set_page_config(layout="wide", page_title="Axon | Inteligência em Segurança")
-
-st.markdown(f"""
+# --- CSS CUSTOMIZADO (O "BANHO DE LOJA") ---
+st.markdown("""
     <style>
-    .stApp {{ background-color: {COLOR_BG}; }}
-    [data-testid="stHeader"] {{ background-color: {COLOR_PRIMARY}; }}
-    .stButton>button {{
-        background-color: {COLOR_PRIMARY};
-        color: {COLOR_ACCENT};
-        border: 1px solid {COLOR_ACCENT};
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+        background-color: #f0f2f6;
+    }
+
+    /* Cabeçalho Premium */
+    .main-header {
+        background: linear-gradient(90deg, #064e3b 0%, #0a3d31 100%);
+        padding: 40px;
+        border-radius: 15px;
+        color: #d4af37;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-bottom: 4px solid #d4af37;
+    }
+
+    /* Cartões de Métricas */
+    .metric-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 5px solid #d4af37;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
+    }
+
+    /* Estilização de Botões */
+    .stButton>button {
+        width: 100%;
+        background: #064e3b;
+        color: #d4af37 !important;
+        border: 2px solid #d4af37;
         border-radius: 8px;
+        height: 3em;
         font-weight: bold;
-    }}
-    h1, h2, h3 {{ color: {COLOR_PRIMARY}; font-family: 'Inter', sans-serif; }}
+        transition: 0.3s;
+    }
+    
+    .stButton>button:hover {
+        background: #d4af37;
+        color: #064e3b !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- MENU LATERAL ---
-st.sidebar.image("https://via.placeholder.com/150x50?text=AXON+LOGO", use_column_width=True) # Substituir por sua logo depois
-modo = st.sidebar.selectbox("Navegação", 
-    ["Dashboard do Cliente", "Mapa de Calor (Humano)", "Gerador de Propostas", "Auditoria de Faturas"])
+# --- HEADER ---
+st.markdown('<div class="main-header"><h1>AXON SYSTEM</h1><p>INTEGRATED RISK MANAGEMENT & ENGINEERING</p></div>', unsafe_allow_html=True)
 
-# --- MÓDULO 1: DASHBOARD (VISUAL DATA LIFE) ---
-if modo == "Dashboard do Cliente":
-    st.markdown(f"<h1 style='text-align: center;'>AXON</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='text-align: center; color: {COLOR_ACCENT}; font-weight: bold;'>PAINEL DE SUPERVISÃO OPERACIONAL</p>", unsafe_allow_html=True)
-    
-    st.subheader("📋 Gestão de Profissionais em Campo (Deluz)")
-    
-    # Exemplo de Tabela Estilizada
-    dados = {
-        "Profissional": ["ADRIANO SILVA SANTOS", "CARLOS OLIVEIRA", "MARIANA SANTOS"],
-        "Cargo": ["Técnico de Redes", "Eletricista SEP", "Supervisora SST"],
-        "Polo": ["Argo 8", "Argo 8", "Argo 8"],
-        "Status": ["Mobilizado", "Em Análise", "Em Análise"],
-        "Ações": ["👁️ Ver | 📄 PDF", "👁️ Ver | 📄 PDF", "👁️ Ver | 📄 PDF"]
-    }
-    df = pd.DataFrame(dados)
-    st.table(df)
+# --- SIDEBAR ---
+with st.sidebar:
+    st.markdown("<h2 style='color: #064e3b;'>Navegação</h2>", unsafe_allow_html=True)
+    menu = st.radio("", ["📊 Dashboard Operacional", "🔥 Mapa de Calor Humano", "📝 Propostas Lux", "📋 Auditoria"])
+    st.markdown("---")
+    st.info("Logado como: **Flávio Filho**")
 
-# --- MÓDULO 2: MAPA DE CALOR (PIONEIRISMO) ---
-elif modo == "Mapa de Calor (Humano)":
-    st.header("🛡️ Human Insight | Prevenção de Erro Humano")
-    st.info("Monitoramento preditivo baseado em fadiga e estresse (COPSOQ II).")
-    
-    col_calor = st.columns(5)
-    dias = ["SEG", "TER", "QUA", "QUI", "SEX"]
-    for i, d in enumerate(dias):
-        with col_calor[i]:
-            st.metric(d, "🟢" if i < 3 else "🔴")
-            st.caption("Risco " + ("Baixo" if i < 3 else "Crítico"))
+# --- MÓDULOS ---
+if menu == "📊 Dashboard Operacional":
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown('<div class="metric-card"><h3>Ativos</h3><h2>142</h2><p style="color:green">↑ 12% este mês</p></div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="metric-card"><h3>Incidentes</h3><h2>0</h2><p style="color:blue">Meta atingida</p></div>', unsafe_allow_html=True)
+    with col3:
+        st.markdown('<div class="metric-card"><h3>Eficiência</h3><h2>98.4%</h2><p style="color:gold">Padrão Ouro</p></div>', unsafe_allow_html=True)
 
-# --- MÓDULO 3: GERADOR DE PROPOSTAS ---
-elif modo == "Gerador de Propostas":
-    st.header("💼 Gerador de Proposta Comercial")
-    with st.form("prop_form"):
-        cli = st.text_input("Empresa Cliente")
-        val = st.number_input("Valor do Projeto (R$)", min_value=0.0)
-        enviar = st.form_submit_button("Gerar Visualização")
-        
-        if enviar:
-            st.success(f"Proposta para {cli} gerada com sucesso!")
+    st.write("### 📋 Status da Equipe (Deluz)")
+    df = pd.DataFrame({
+        "Profissional": ["ADRIANO SILVA", "CARLOS OLIVEIRA", "MARIANA SANTOS"],
+        "Risco": ["Baixo", "Médio", "Baixo"],
+        "Status": ["✅ Em Campo", "⚠️ Em Análise", "✅ Em Campo"]
+    })
+    st.dataframe(df, use_container_width=True)
+
+elif menu == "🔥 Mapa de Calor Humano":
+    st.subheader("🛡️ Análise Preditiva de Erro Humano")
+    st.warning("Monitoramento em tempo real baseado em COPSOQ II.")
+    # Aqui entrará o gráfico de calor real
+    st.image("https://raw.githubusercontent.com/streamlit/fluent-ui-components/master/docs/heat-map.png", caption="Exemplo de Concentração de Fadiga por Polo")
+
+elif menu == "📝 Propostas Lux":
+    st.markdown("### 💼 Geração de Documentos de Autoridade")
+    with st.expander("Nova Proposta Comercial", expanded=True):
+        cliente = st.text_input("Nome do Cliente")
+        servico = st.selectbox("Serviço", ["Consultoria NR-10", "Prontuário de Instalações", "Treinamento SEP"])
+        if st.button("GERAR PROPOSTA PREMIUM"):
+            st.success("Documento gerado com sucesso!")
             st.markdown(f"""
-            <div style="border: 2px solid {COLOR_PRIMARY}; padding: 20px; border-radius: 10px;">
-                <h3>PROPOSTA COMERCIAL AXON</h3>
-                <p><b>Consultoria:</b> {NOME_EMPRESA} | <b>Engenheiro:</b> {ENG_RESPONSAVEL}</p>
-                <p><b>Valor Total: R$ {val:,.2f}</b></p>
-            </div>
+                <div style="padding:20px; border:1px solid #d4af37; background:white;">
+                    <h2 style="color:#064e3b">PROPOSTA COMERCIAL AXON</h2>
+                    <p><b>Cliente:</b> {cliente}</p>
+                    <p><b>Serviço:</b> {servico}</p>
+                    <hr>
+                    <p><i>Este documento possui certificação digital de engenharia.</i></p>
+                </div>
             """, unsafe_allow_html=True)
-
-st.sidebar.markdown("---")
-st.sidebar.caption(f"AXON v1.0 | {ENG_RESPONSAVEL}")
