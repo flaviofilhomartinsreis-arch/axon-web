@@ -1,154 +1,95 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-from datetime import datetime
-import os
+from supabase import create_client, Client
 
-# --- 1. CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(
-    layout="wide", 
-    page_title="Axon - BI & Inteligência em SST", 
-    page_icon="⚡"
-)
+# --- 1. CONFIGURAÇÕES INICIAIS ---
+st.set_page_config(page_title="Axon - Inteligência em SST", layout="wide")
 
-# --- 2. SOLUÇÃO DEFINITIVA DE TRANSPARÊNCIA E ESTILO (CSS) ---
-st.markdown("""
-    <style>
-    /* Remove o fundo de xadrez ou qualquer cor sólida da logo na sidebar */
-    [data-testid="stSidebar"] [data-testid="stImage"] {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
+# --- 2. CONEXÃO COM SUPABASE (Via Secrets) ---
+# O Streamlit lerá automaticamente as chaves que você salvou nas 'Secrets'
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+supabase: Client = create_client(url, key)
+
+# --- 3. LÓGICA DE ACESSO RESTRITO ---
+def verificar_login():
+    if "autenticado" not in st.session_state:
+        st.session_state.autenticado = False
+
+    with st.sidebar:
+        st.markdown("### 🔐 Área Restrita")
+        if not st.session_state.autenticado:
+            senha = st.text_input("Senha Admin Axon:", type="password")
+            if st.button("Acessar"):
+                if senha == st.secrets["SENHA_ADMIN"]:
+                    st.session_state.autenticado = True
+                    st.success("Acesso liberado!")
+                    st.rerun()
+                else:
+                    st.error("Senha incorreta.")
+        else:
+            if st.button("Sair / Logoff"):
+                st.session_state.autenticado = False
+                st.rerun()
+    
+    return st.session_state.autenticado
+
+# --- 4. FUNÇÕES DE BANCO DE DADOS ---
+def buscar_dados():
+    # Busca os dados reais que você inseriu no Supabase
+    response = supabase.table("clientes_conformidade").select("*").execute()
+    return pd.DataFrame(response.data)
+
+def salvar_novo_laudo(empresa, estado, doc, status, vencimento):
+    dados = {
+        "empresa": empresa,
+        "estado": estado,
+        "documento": doc,
+        "status": status,
+        "vencimento": str(vencimento),
+        "tecnico_responsavel": "Eng. Flávio Filho"
     }
-    
-    /* Estilização Geral do App */
-    .stApp { background-color: #f8f9fa; }
-    
-    /* Cabeçalho do Dashboard Axon */
-    .header-axon {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 12px;
-        border-left: 8px solid #003366; /* Azul Escuro Axon */
-        margin-bottom: 25px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    }
-    
-    /* Cards de BI */
-    .metric-card {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        text-align: center;
-        border: 1px solid #e9ecef;
-    }
-    .metric-label { font-size: 13px; color: #6c757d; font-weight: bold; text-transform: uppercase; }
-    .metric-value { font-size: 30px; color: #003366; font-weight: bold; margin-top: 5px; }
-    .metric-delta { font-size: 14px; color: #28a745; font-weight: 600; }
-    </style>
-""", unsafe_allow_html=True)
+    supabase.table("clientes_conformidade").insert(dados).execute()
 
-# --- 3. LÓGICA DE CARREGAMENTO DA LOGO ---
-def carregar_logo_axon():
-    # O código vai procurar exatamente pelo nome que está no seu GitHub
-    caminho_logo = "nova_logo_axon.png" 
+# --- 5. INTERFACE PRINCIPAL ---
+if verificar_login():
+    st.header("📊 Painel de Gestão Axon (SP & MS)")
     
-    if os.path.exists(caminho_logo):
-        return caminho_logo
-    return None
-
-# --- 4. BARRA LATERAL (NAVEGAÇÃO) ---
-with st.sidebar:
-    logo = carregar_logo_axon()
-    if logo:
-        # Exibe a logo - o CSS acima garante a transparência no navegador
-        st.image(logo, use_column_width=True)
-    else:
-        st.error("⚠️ Arquivo 'nova_logo_axon.png' não encontrado.")
-        st.title("AXON")
+    # Carrega os dados do banco
+    df = buscar_dados()
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    tab1, tab2, tab3 = st.tabs(["Dashboard BI", "Matriz de Conformidade", "Novo Lançamento"])
     
-    menu = st.radio("SISTEMA DE GESTÃO ESTRATÉGICA", [
-        "📊 Dashboard de BI (SST)", 
-        "🛡️ Matriz de Conformidade", 
-        "🧠 Análise de Laudos (IA)", 
-        "📥 Portal eSocial (XML)",
-        "🎓 Certificados & Treinamentos",
-        "📄 Propostas de Engenharia"
-    ])
-    
-    st.markdown("---")
-    st.caption(f"**RT:** Eng. Flávio Filho Martins Reis")
-    st.caption(f"CREA: SP-0000000 | SST & Elétrica")
+    with tab1:
+        st.subheader("Indicadores por Estado")
+        if not df.empty:
+            # Gráfico comparativo entre SP e MS
+            contagem_estado = df['estado'].value_counts().reset_index()
+            st.bar_chart(data=contagem_estado, x='estado', y='count', color="#003366")
+        else:
+            st.info("Nenhum dado encontrado para gerar o BI.")
 
-# --- 5. MÓDULO PRINCIPAL: DASHBOARD DE BI ---
-if menu == "📊 Dashboard de BI (SST)":
-    st.markdown("""
-        <div class="header-axon">
-            <h2 style="color: #003366; margin:0;">BI - INTELIGÊNCIA EM SEGURANÇA E ENGENHARIA</h2>
-            <p style="color: #28a745; margin:0; font-weight: 500;">Monitoramento de Conformidade e Gestão Axon</p>
-        </div>
-    """, unsafe_allow_html=True)
+    with tab2:
+        st.subheader("Monitoramento de Prazos")
+        st.dataframe(df, use_container_width=True)
 
-    # Fileiras de Indicadores (KPIs)
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.markdown('<div class="metric-card"><p class="metric-label">Total ASOs</p><p class="metric-value">329</p><p class="metric-delta">↑ 12% vs mês ant.</p></div>', unsafe_allow_html=True)
-    with col2:
-        st.markdown('<div class="metric-card"><p class="metric-label">ASOs Vencidos</p><p class="metric-value" style="color: #dc3545;">08</p><p class="metric-delta" style="color: #dc3545;">Ação Crítica</p></div>', unsafe_allow_html=True)
-    with col3:
-        st.markdown('<div class="metric-card"><p class="metric-label">Treinamentos OK</p><p class="metric-value">94%</p><p class="metric-delta">Meta: 90%</p></div>', unsafe_allow_html=True)
-    with col4:
-        st.markdown('<div class="metric-card"><p class="metric-label">Laudos Válidos</p><p class="metric-value">12</p><p class="metric-delta">PGR / PCMSO / LTCAT</p></div>', unsafe_allow_html=True)
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # Gráficos de Gestão
-    g1, g2 = st.columns([1, 1.5])
-    
-    with g1:
-        st.subheader("Distribuição de Exames")
-        df_pizza = pd.DataFrame({"Tipo": ["Admissional", "Periódico", "Demissional"], "Qtd": [45, 250, 34]})
-        fig_pizza = px.pie(df_pizza, values='Qtd', names='Tipo', hole=.4, 
-                           color_discrete_sequence=['#003366', '#28a745', '#6c757d'])
-        st.plotly_chart(fig_pizza, use_container_width=True)
-        
-    with g2:
-        st.subheader("Evolução de Eventos eSocial (S-2220 / S-2240)")
-        df_bar = pd.DataFrame({
-            "Mês": ["Jan", "Fev", "Mar", "Abr"], 
-            "Enviados": [120, 150, 180, 210]
-        })
-        fig_bar = px.bar(df_bar, x="Mês", y="Enviados", color_discrete_sequence=['#003366'])
-        st.plotly_chart(fig_bar, use_container_width=True)
-
-# --- 6. MÓDULO DE CERTIFICADOS ---
-elif menu == "🎓 Certificados & Treinamentos":
-    st.subheader("Emissão de Certificados Profissionais")
-    st.info("Utilize este módulo para gerar certificados com validade jurídica assinados digitalmente.")
-    
-    # Exemplo de visualização de certificado
-    st.markdown("""
-        <div style="border: 5px solid #003366; padding: 40px; text-align: center; background-color: white;">
-            <h1 style="color: #003366;">CERTIFICADO DE TREINAMENTO</h1>
-            <p style="font-size: 20px;">NR-10 SEGURANÇA EM INSTALAÇÕES ELÉTRICAS</p>
-            <br>
-            <p>Certificamos que o colaborador concluiu com aproveitamento o treinamento técnico.</p>
-            <br><br>
-            <div style="display: flex; justify-content: space-around;">
-                <div style="border-top: 1px solid black; width: 200px; font-size: 12px;">
-                    Eng. Flávio Filho Martins Reis<br>Engenheiro de Seg. do Trabalho
-                </div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
-# --- RODAPÉ ---
-st.markdown(f"""
-    <div style="text-align: center; margin-top: 50px; color: #6c757d; font-size: 12px;">
-        Axon Engenharia e Segurança do Trabalho © {datetime.now().year} | Inteligência em SST
-    </div>
-""", unsafe_allow_html=True)
+    with tab3:
+        st.subheader("Cadastrar Novo Laudo Técnico")
+        with st.form("form_laudo"):
+            col1, col2 = st.columns(2)
+            with col1:
+                emp = st.text_input("Nome da Empresa")
+                est = st.selectbox("Estado", ["SP", "MS"])
+            with col2:
+                doc = st.selectbox("Documento/NR", ["PGR", "LTCAT", "NR-10", "NR-12", "PCMSO"])
+                venc = st.date_input("Vencimento")
+            
+            status = st.select_slider("Status", options=["❌ Pendente", "⚠️ Em Prazo", "✅ Concluído"])
+            
+            if st.form_submit_button("Salvar no Supabase"):
+                salvar_novo_laudo(emp, est, doc, status, venc)
+                st.success(f"Empresa {emp} cadastrada com sucesso!")
+                st.rerun()
+else:
+    # Tela para quem não está logado
+    st.info("Aguardando login na barra lateral para exibir dados de engenharia.")
