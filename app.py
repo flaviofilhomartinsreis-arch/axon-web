@@ -2,48 +2,52 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client, Client
 
-# --- 1. CONFIGURAÇÕES INICIAIS ---
-st.set_page_config(page_title="Axon - Inteligência em SST", layout="wide")
+# --- 1. CONFIGURAÇÕES DE PÁGINA ---
+st.set_page_config(page_title="Axon Nacional - Engenharia & SST", layout="wide")
 
-# --- 2. CONEXÃO COM SUPABASE (Via Secrets) ---
-# O Streamlit lerá automaticamente as chaves que você salvou nas 'Secrets'
+# --- 2. CONEXÃO SUPABASE (Via Secrets) ---
 url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
 supabase: Client = create_client(url, key)
 
-# --- 3. LÓGICA DE ACESSO RESTRITO ---
+# --- 3. LISTA NACIONAL DE ESTADOS ---
+UFS_BRASIL = [
+    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
+    'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
+    'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+]
+
+# --- 4. LÓGICA DE ACESSO ---
 def verificar_login():
     if "autenticado" not in st.session_state:
         st.session_state.autenticado = False
-
     with st.sidebar:
-        st.markdown("### 🔐 Área Restrita")
+        st.title("🛡️ Axon Admin")
+        st.markdown("---")
         if not st.session_state.autenticado:
-            senha = st.text_input("Senha Admin Axon:", type="password")
-            if st.button("Acessar"):
+            senha = st.text_input("Senha de Acesso Nacional:", type="password")
+            if st.button("Liberar Sistema"):
                 if senha == st.secrets["SENHA_ADMIN"]:
                     st.session_state.autenticado = True
-                    st.success("Acesso liberado!")
                     st.rerun()
                 else:
-                    st.error("Senha incorreta.")
+                    st.error("Senha inválida.")
         else:
-            if st.button("Sair / Logoff"):
+            st.success("Sessão Ativa")
+            if st.button("Encerrar Sessão"):
                 st.session_state.autenticado = False
                 st.rerun()
-    
     return st.session_state.autenticado
 
-# --- 4. FUNÇÕES DE BANCO DE DADOS ---
+# --- 5. FUNÇÕES DE BANCO DE DADOS ---
 def buscar_dados():
-    # Busca os dados reais que você inseriu no Supabase
     response = supabase.table("clientes_conformidade").select("*").execute()
     return pd.DataFrame(response.data)
 
-def salvar_novo_laudo(empresa, estado, doc, status, vencimento):
+def salvar_no_banco(empresa, uf, doc, status, vencimento):
     dados = {
         "empresa": empresa,
-        "estado": estado,
+        "estado": uf,
         "documento": doc,
         "status": status,
         "vencimento": str(vencimento),
@@ -51,45 +55,66 @@ def salvar_novo_laudo(empresa, estado, doc, status, vencimento):
     }
     supabase.table("clientes_conformidade").insert(dados).execute()
 
-# --- 5. INTERFACE PRINCIPAL ---
+# --- 6. INTERFACE PRINCIPAL ---
 if verificar_login():
-    st.header("📊 Painel de Gestão Axon (SP & MS)")
+    st.title("🌐 Axon - Gestão Nacional de SST")
     
-    # Carrega os dados do banco
-    df = buscar_dados()
+    # Busca dados reais
+    df_original = buscar_dados()
     
-    tab1, tab2, tab3 = st.tabs(["Dashboard BI", "Matriz de Conformidade", "Novo Lançamento"])
-    
+    # --- FILTRO GLOBAL ---
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("🔍 Filtros de Escala")
+    filtro_uf = st.sidebar.multiselect("Filtrar por UF:", options=UFS_BRASIL)
+
+    if filtro_uf:
+        df = df_original[df_original['estado'].isin(filtro_uf)]
+    else:
+        df = df_original
+
+    # --- NAVEGAÇÃO POR ABAS ---
+    tab1, tab2, tab3 = st.tabs(["📊 BI Nacional", "📋 Matriz de Conformidade", "➕ Novo Cadastro"])
+
     with tab1:
-        st.subheader("Indicadores por Estado")
+        st.subheader("Indicadores por Região")
         if not df.empty:
-            # Gráfico comparativo entre SP e MS
-            contagem_estado = df['estado'].value_counts().reset_index()
-            st.bar_chart(data=contagem_estado, x='estado', y='count', color="#003366")
+            col_graph1, col_graph2 = st.columns(2)
+            with col_graph1:
+                # Volume por Estado
+                stats_uf = df['estado'].value_counts().reset_index()
+                st.write("**Distribuição por Estado**")
+                st.bar_chart(data=stats_uf, x='estado', y='count', color="#003366")
+            with col_graph2:
+                # Status Geral
+                stats_status = df['status'].value_counts().reset_index()
+                st.write("**Status de Conformidade**")
+                st.bar_chart(data=stats_status, x='status', y='count', color="#008080")
         else:
-            st.info("Nenhum dado encontrado para gerar o BI.")
+            st.info("Nenhum dado disponível para os filtros selecionados.")
 
     with tab2:
-        st.subheader("Monitoramento de Prazos")
-        st.dataframe(df, use_container_width=True)
+        st.subheader("Visualização de Documentos")
+        st.dataframe(df, use_container_width=True, hide_index=True)
 
     with tab3:
-        st.subheader("Cadastrar Novo Laudo Técnico")
-        with st.form("form_laudo"):
-            col1, col2 = st.columns(2)
-            with col1:
-                emp = st.text_input("Nome da Empresa")
-                est = st.selectbox("Estado", ["SP", "MS"])
-            with col2:
-                doc = st.selectbox("Documento/NR", ["PGR", "LTCAT", "NR-10", "NR-12", "PCMSO"])
-                venc = st.date_input("Vencimento")
+        st.subheader("Lançamento de Novo Cliente Nacional")
+        with st.form("form_nacional"):
+            c1, c2 = st.columns(2)
+            with c1:
+                nome = st.text_input("Nome da Empresa")
+                uf_sel = st.selectbox("Estado (UF)", UFS_BRASIL)
+            with c2:
+                doc_tipo = st.selectbox("Documento Técnico", ["PGR", "LTCAT", "NR-10", "NR-12", "PCMSO", "PPP"])
+                venc_data = st.date_input("Vencimento")
             
-            status = st.select_slider("Status", options=["❌ Pendente", "⚠️ Em Prazo", "✅ Concluído"])
+            status_sel = st.select_slider("Status de Entrega", options=["❌ Pendente", "⚠️ Em Prazo", "✅ Concluído"])
             
-            if st.form_submit_button("Salvar no Supabase"):
-                salvar_novo_laudo(emp, est, doc, status, venc)
-                st.success(f"Empresa {emp} cadastrada com sucesso!")
-                st.rerun()
+            if st.form_submit_button("Registrar na Base Nacional"):
+                if nome:
+                    salvar_no_banco(nome, uf_sel, doc_tipo, status_sel, venc_data)
+                    st.success(f"Empresa {nome} (UF: {uf_sel}) salva com sucesso!")
+                    st.rerun()
+                else:
+                    st.warning("Por favor, preencha o nome da empresa.")
 else:
-    # Tela para quem não está logado
-    st.info("Aguardando login na barra lateral para exibir dados de engenharia.")
+    st.warning("⚠️ Sistema Protegido. Realize o login na barra lateral para acessar a base nacional.")
