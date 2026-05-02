@@ -2,119 +2,102 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client, Client
 
-# --- 1. CONFIGURAÇÕES DE PÁGINA ---
-st.set_page_config(page_title="Axon Nacional - Engenharia & SST", layout="wide")
+# 1. Configurações de Página e Estilo Customizado (Inspirado na Data Life)
+st.set_page_config(page_title="Axon - Engenharia e SST", layout="wide", page_icon="⚡")
 
-# --- 2. CONEXÃO SUPABASE (Via Secrets) ---
-url = st.secrets["SUPABASE_URL"]
-key = st.secrets["SUPABASE_KEY"]
-supabase: Client = create_client(url, key)
-
-# --- 3. LISTA NACIONAL DE ESTADOS ---
-UFS_BRASIL = [
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
-    'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
-    'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-]
-
-# --- 4. LÓGICA DE ACESSO ---
-def verificar_login():
-    if "autenticado" not in st.session_state:
-        st.session_state.autenticado = False
-    with st.sidebar:
-        st.title("🛡️ Axon Admin")
-        st.markdown("---")
-        if not st.session_state.autenticado:
-            senha = st.text_input("Senha de Acesso Nacional:", type="password")
-            if st.button("Liberar Sistema"):
-                if senha == st.secrets["SENHA_ADMIN"]:
-                    st.session_state.autenticado = True
-                    st.rerun()
-                else:
-                    st.error("Senha inválida.")
-        else:
-            st.success("Sessão Ativa")
-            if st.button("Encerrar Sessão"):
-                st.session_state.autenticado = False
-                st.rerun()
-    return st.session_state.autenticado
-
-# --- 5. FUNÇÕES DE BANCO DE DADOS ---
-def buscar_dados():
-    response = supabase.table("clientes_conformidade").select("*").execute()
-    return pd.DataFrame(response.data)
-
-def salvar_no_banco(empresa, uf, doc, status, vencimento):
-    dados = {
-        "empresa": empresa,
-        "estado": uf,
-        "documento": doc,
-        "status": status,
-        "vencimento": str(vencimento),
-        "tecnico_responsavel": "Eng. Flávio Filho"
+# Aplicando as cores da sua logo via CSS
+st.markdown("""
+    <style>
+    /* Esconde menus nativos do Streamlit para parecer um site real */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Navbar customizada */
+    .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 5%;
+        background-color: #ffffff;
+        border-bottom: 2px solid #84bd00; /* Verde da sua logo */
+        position: sticky;
+        top: 0;
+        z-index: 999;
     }
-    supabase.table("clientes_conformidade").insert(dados).execute()
-
-# --- 6. INTERFACE PRINCIPAL ---
-if verificar_login():
-    st.title("🌐 Axon - Gestão Nacional de SST")
     
-    # Busca dados reais
-    df_original = buscar_dados()
+    .hero-section {
+        background: linear-gradient(135deg, #1d4363 0%, #2a5a82 100%); /* Azul da logo */
+        padding: 80px 10%;
+        color: white;
+        text-align: left;
+    }
     
-    # --- FILTRO GLOBAL ---
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("🔍 Filtros de Escala")
-    filtro_uf = st.sidebar.multiselect("Filtrar por UF:", options=UFS_BRASIL)
+    .stButton>button {
+        background-color: #84bd00 !important; /* Verde vibrante */
+        color: white !important;
+        border-radius: 5px !important;
+        border: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-    if filtro_uf:
-        df = df_original[df_original['estado'].isin(filtro_uf)]
-    else:
-        df = df_original
+# 2. Conexão com Supabase
+supabase: Client = create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_KEY"])
 
-    # --- NAVEGAÇÃO POR ABAS ---
-    tab1, tab2, tab3 = st.tabs(["📊 BI Nacional", "📋 Matriz de Conformidade", "➕ Novo Cadastro"])
+# 3. Lógica de Sessão e Login
+if "user_data" not in st.session_state:
+    st.session_state.user_data = None
 
-    with tab1:
-        st.subheader("Indicadores por Região")
-        if not df.empty:
-            col_graph1, col_graph2 = st.columns(2)
-            with col_graph1:
-                # Volume por Estado
-                stats_uf = df['estado'].value_counts().reset_index()
-                st.write("**Distribuição por Estado**")
-                st.bar_chart(data=stats_uf, x='estado', y='count', color="#003366")
-            with col_graph2:
-                # Status Geral
-                stats_status = df['status'].value_counts().reset_index()
-                st.write("**Status de Conformidade**")
-                st.bar_chart(data=stats_status, x='status', y='count', color="#008080")
-        else:
-            st.info("Nenhum dado disponível para os filtros selecionados.")
+def login_form():
+    # Cabeçalho do Site Estilo Institucional
+    st.markdown(f"""
+        <div class="nav-container">
+            <div style="font-size: 24px; font-weight: bold; color: #1d4363;">AXON</div>
+            <div style="font-size: 14px; color: #666;">Engenharia e Segurança do Trabalho</div>
+        </div>
+        <div class="hero-section">
+            <h1 style="font-size: 45px;">Gestão Inteligente de <br><span style="color: #84bd00;">Conformidade Técnica</span></h1>
+            <p style="font-size: 18px; opacity: 0.9;">Abrangência nacional em SST para sua empresa e contabilidade.</p>
+        </div>
+    """, unsafe_allow_html=True)
 
-    with tab2:
-        st.subheader("Visualização de Documentos")
-        st.dataframe(df, use_container_width=True, hide_index=True)
-
-    with tab3:
-        st.subheader("Lançamento de Novo Cliente Nacional")
-        with st.form("form_nacional"):
-            c1, c2 = st.columns(2)
-            with c1:
-                nome = st.text_input("Nome da Empresa")
-                uf_sel = st.selectbox("Estado (UF)", UFS_BRASIL)
-            with c2:
-                doc_tipo = st.selectbox("Documento Técnico", ["PGR", "LTCAT", "NR-10", "NR-12", "PCMSO", "PPP"])
-                venc_data = st.date_input("Vencimento")
-            
-            status_sel = st.select_slider("Status de Entrega", options=["❌ Pendente", "⚠️ Em Prazo", "✅ Concluído"])
-            
-            if st.form_submit_button("Registrar na Base Nacional"):
-                if nome:
-                    salvar_no_banco(nome, uf_sel, doc_tipo, status_sel, venc_data)
-                    st.success(f"Empresa {nome} (UF: {uf_sel}) salva com sucesso!")
+    st.write("##") # Espaçamento
+    
+    # Formulário de Login centralizado
+    col1, col2, col3 = st.columns([1, 1.5, 1])
+    with col2:
+        with st.container(border=True):
+            st.subheader("🔐 Acesse a Plataforma")
+            email = st.text_input("E-mail cadastrado")
+            senha = st.text_input("Senha", type="password")
+            if st.button("Entrar no Sistema", use_container_width=True):
+                res = supabase.table("usuarios_axon").select("*").eq("email", email).eq("senha_acesso", senha).execute()
+                if res.data:
+                    st.session_state.user_data = res.data[0]
                     st.rerun()
                 else:
-                    st.warning("Por favor, preencha o nome da empresa.")
+                    st.error("Credenciais inválidas para o sistema Axon.")
+
+# 4. Exibição Condicional
+if st.session_state.user_data is None:
+    login_form()
 else:
-    st.warning("⚠️ Sistema Protegido. Realize o login na barra lateral para acessar a base nacional.")
+    # --- ÁREA LOGADA (O QUE O CLIENTE/ADMIN VÊ) ---
+    user = st.session_state.user_data
+    st.sidebar.image("sua_logo_aqui.png") # Coloque o link da sua logo aqui
+    st.sidebar.write(f"Conectado: **{user['email']}**")
+    
+    if st.sidebar.button("Sair"):
+        st.session_state.user_data = None
+        st.rerun()
+
+    # Filtro de dados conforme o perfil (Admin, Cliente ou Contador)
+    st.title(f"Painel de Gestão: {user['nivel_acesso'].capitalize()}")
+    st.info(f"Visualizando dados de: {user['empresa_vinculada']}")
+    
+    # Aqui entra sua tabela de conformidade e gráficos de BI
+    st.divider()
+    st.write("### Matriz de Conformidade Nacional")
+    # (Código dos gráficos e tabelas que já fizemos antes)
+    
