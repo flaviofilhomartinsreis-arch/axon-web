@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Axon - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --azul: #1d4363; --verde: #84bd00; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8f9fa; }
+        header { background: var(--azul); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
+        .container { padding: 2rem 5%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        .btn-download { color: var(--verde); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="nova_logo_axon.png" alt="Axon" style="height: 40px;">
+        <button onclick="sair()" style="background:transparent; border:1px solid white; color:white; cursor:pointer; padding:5px 10px; border-radius:5px;">Sair</button>
+    </header>
+
+    <div class="container">
+        <h2 id="titulo-boas-vindas">Bem-vindo à Axon</h2>
+        <div class="card">
+            <h3>Matriz Nacional de Documentos</h3>
+            <table id="tabela-docs">
+                <thead>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Empresa</th>
+                        <th>UF</th>
+                        <th>Vencimento</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'SUA_URL_AQUI';
+        const supabaseKey = 'SUA_CHAVE_ANON_AQUI';
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        const user = JSON.parse(localStorage.getItem("axon_session"));
+        if (!user) window.location.href = "index.html";
+
+        document.getElementById("titulo-boas-vindas").innerText = "Painel: " + user.empresa_vinculada;
+
+        async function carregar() {
+            let query = _supabase.from('clientes_conformidade').select('*');
+            if (user.nivel_acesso !== 'admin') {
+                query = query.eq('empresa', user.empresa_vinculada);
+            }
+            const { data } = await query;
+            const tbody = document.querySelector("#tabela-docs tbody");
+            tbody.innerHTML = data.map(d => `
+                <tr>
+                    <td>${d.documento}</td>
+                    <td>${d.empresa}</td>
+                    <td>${d.estado}</td>
+                    <td>${new Date(d.vencimento).toLocaleDateString()}</td>
+                    <td><a href="${d.url_documento}" target="_blank" class="btn-download">Ver PDF</a></td>
+                </tr>
+            `).join('');
+        }
+        function sair() { localStorage.removeItem("axon_session"); window.location.href = "index.html"; }
+        carregar();
+    </script>
+</body>
+</html>
