@@ -3,170 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Axon - Portal de Gestão SST</title>
+    
+    <!-- Configuração Profissional do Link -->
+    <title>Axon | Inteligência em Engenharia e Segurança do Trabalho</title>
+    <meta name="description" content="Plataforma de gestão integrada para conformidade legal, SST e engenharia especializada.">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         :root {
-            --primary-blue: #1d4363;
+            /* O azul escuro exato da referência */
+            --bg-deep-blue: #0a0a5e; 
             --axon-green: #84bd00;
             --axon-green-hover: #71a300;
-            --bg-page: #f0f4f8;
+            --text-white: #ffffff;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-page);
+            background-color: var(--bg-deep-blue);
             margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
         }
 
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(29, 67, 99, 0.08);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        /* Container da Logo Integrado (Sem contornos ou sombras) */
+        /* Estilização da Logo para fundo escuro */
         .logo-box {
-            background: transparent; /* Remove o fundo branco do container */
+            background: transparent;
             padding: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
-            border: none; /* Garante que não haja bordas */
-            box-shadow: none; /* Remove a sombra específica da logo */
         }
 
         .logo-img {
-            max-width: 180px;
+            max-width: 220px;
             height: auto;
             display: block;
+            /* Filtro para garantir que a logo branca/colorida brilhe no fundo escuro */
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.1));
         }
 
-        h2 {
-            color: var(--primary-blue);
-            font-size: 1.4rem;
+        .portal-title {
+            color: var(--text-white);
+            font-size: 1.5rem;
             margin-bottom: 30px;
-            font-weight: 700;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 4px; /* Estilo mais quadrado e corporativo como na imagem */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
         }
 
         .input-group {
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             position: relative;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #64748b;
-            margin-bottom: 8px;
-            padding-left: 4px;
         }
 
         input {
             width: 100%;
-            padding: 14px;
-            padding-right: 45px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1rem;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.95rem;
             box-sizing: border-box;
-            transition: all 0.2s ease;
-            background-color: #f8fafc;
+            background-color: #f3f4f6;
         }
 
         input:focus {
             outline: none;
-            border-color: var(--axon-green);
-            background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(132, 189, 0, 0.1);
+            border-color: #007bff;
+            background-color: white;
         }
 
         .toggle-password {
             position: absolute;
-            right: 15px;
-            top: 38px;
+            right: 12px;
+            top: 14px;
             cursor: pointer;
-            color: #94a3b8;
-            transition: 0.2s;
-        }
-
-        .toggle-password:hover {
-            color: var(--primary-blue);
+            color: #6b7280;
         }
 
         button {
             width: 100%;
-            padding: 16px;
-            background: var(--axon-green);
+            padding: 12px;
+            background: #007bff; /* Azul de ação clássico */
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 4px;
             font-size: 1rem;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
             margin-top: 10px;
+            transition: 0.2s;
         }
 
         button:hover {
-            background: var(--axon-green-hover);
-            transform: translateY(-1px);
+            background: #0056b3;
         }
 
         #msg {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #ef4444;
+            margin-top: 15px;
+            font-size: 0.85rem;
             min-height: 20px;
         }
 
-        .footer-text {
-            margin-top: 35px;
-            font-size: 0.75rem;
-            color: #94a3b8;
+        .footer-info {
+            position: absolute;
+            bottom: 20px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
         }
     </style>
 </head>
 <body>
 
+    <div class="logo-box">
+        <img src="nova_logo_axon.png" alt="Axon Engenharia" class="logo-img">
+    </div>
+    
+    <div class="portal-title">Gestão de Engenharia e Segurança</div>
+    
     <div class="login-card">
-        <!-- Logo sem bordas ou sombras, integrada ao fundo -->
-        <div class="logo-box">
-            <img src="nova_logo_axon.png" alt="Axon Engenharia" class="logo-img">
-        </div>
-        
-        <h2>Portal de Gestão SST</h2>
-        
         <div class="input-group">
-            <label>E-mail Corporativo</label>
-            <input type="email" id="email" placeholder="seu@email.com.br">
+            <input type="email" id="email" placeholder="E-mail Corporativo">
         </div>
 
         <div class="input-group">
-            <label>Senha de Acesso</label>
-            <input type="password" id="password" placeholder="••••••••">
+            <input type="password" id="password" placeholder="Senha de Acesso">
             <i class="fas fa-eye toggle-password" id="eyeIcon"></i>
         </div>
 
-        <button id="btnEntrar">Acessar Sistema</button>
+        <button id="btnEntrar">Entrar no Sistema</button>
         
         <div id="msg"></div>
+    </div>
 
-        <p class="footer-text">Axon Engenharia e Segurança do Trabalho &copy; 2026</p>
+    <div class="footer-info">
+        <span>suporte@axonengenharia.com.br</span>
+        <span>v3.0.0</span>
     </div>
 
     <script>
@@ -189,8 +181,8 @@
             const pass = document.getElementById('password').value;
             const msg = document.getElementById('msg');
 
-            msg.style.color = "#1d4363";
-            msg.innerText = "Verificando...";
+            msg.style.color = "#0a0a5e";
+            msg.innerText = "Autenticando...";
 
             try {
                 const { data, error } = await _supabase
@@ -201,8 +193,8 @@
                     .single();
 
                 if (error || !data) {
-                    msg.style.color = "#ef4444";
-                    msg.innerText = "Credenciais incorretas.";
+                    msg.style.color = "#d11212";
+                    msg.innerText = "Credenciais inválidas.";
                     return;
                 }
 
@@ -210,7 +202,7 @@
                 window.location.href = "dashboard.html";
 
             } catch (e) {
-                msg.innerText = "Falha na conexão com o servidor.";
+                msg.innerText = "Erro de conexão.";
             }
         }
 
