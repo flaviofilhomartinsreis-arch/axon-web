@@ -13,7 +13,7 @@
     
     <style>
         :root {
-            --bg-deep-blue: #020240; /* Azul marinho profundo da referência */
+            --bg-deep-blue: #020240; 
             --axon-blue-action: #007bff;
             --text-white: #ffffff;
             --input-bg: #f0f4f9;
@@ -27,42 +27,43 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             overflow: hidden;
+            position: relative;
         }
 
-        /* Logo centralizada e integrada */
+        /* Logo Reduzida para não espremer a tela */
         .logo-container {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 5px; /* Reduzido significativamente */
         }
 
         .logo-img {
-            max-width: 260px;
+            max-width: 180px; /* Reduzido de 260px para 180px */
             height: auto;
-            /* Filtro para inverter e garantir o branco puro no texto da logo */
             filter: invert(1) brightness(100%);
             mix-blend-mode: screen;
         }
 
         .sub-title {
             color: var(--text-white);
-            font-size: 1.6rem;
+            font-size: 1.3rem; /* Levemente menor para harmonia */
             font-weight: 300;
-            margin-bottom: 40px;
+            margin-bottom: 25px; /* Reduzido para aproximar do card */
             text-align: center;
         }
 
-        /* Card de Login seguindo o padrão Data Life */
+        /* Card de Login com proporções equilibradas */
         .login-card {
             background: white;
-            padding: 50px 35px;
+            padding: 40px 35px;
             border-radius: 4px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             box-sizing: border-box;
             text-align: center;
+            z-index: 2;
         }
 
         .input-group {
@@ -96,7 +97,6 @@
             font-size: 0.9rem;
         }
 
-        /* Botão largo e azul */
         .btn-access {
             width: 100%;
             padding: 12px;
@@ -107,7 +107,7 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 10px;
             transition: background 0.2s;
         }
 
@@ -117,14 +117,10 @@
 
         .forgot-link {
             display: inline-block;
-            margin-top: 30px;
+            margin-top: 25px;
             color: #00a8ff;
             text-decoration: none;
             font-size: 0.85rem;
-        }
-
-        .forgot-link:hover {
-            text-decoration: underline;
         }
 
         #msg {
@@ -133,14 +129,14 @@
             min-height: 20px;
         }
 
-        /* Rodapé posicionado nas extremidades inferiores */
+        /* Rodapé Fixo nas extremidades - Padrão Data Life */
         .footer-bar {
             position: absolute;
-            bottom: 25px;
+            bottom: 20px;
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 40px;
+            padding: 0 30px;
             box-sizing: border-box;
             color: rgba(255,255,255,0.4);
             font-size: 0.75rem;
@@ -173,6 +169,7 @@
         <div id="msg"></div>
     </div>
 
+    <!-- Rodapé conforme solicitado -->
     <div class="footer-bar">
         <span>suporte@axonengenharia.com.br</span>
         <span>v3.0.0</span>
@@ -199,7 +196,7 @@
             const msg = document.getElementById('msg');
 
             msg.style.color = "rgba(255,255,255,0.6)";
-            msg.innerText = "Verificando...";
+            msg.innerText = "Autenticando...";
 
             try {
                 const { data, error } = await _supabase
@@ -219,7 +216,7 @@
                 window.location.href = "dashboard.html";
 
             } catch (e) {
-                msg.innerText = "Erro ao conectar.";
+                msg.innerText = "Erro de conexão.";
             }
         }
 
