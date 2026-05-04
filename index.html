@@ -17,6 +17,7 @@
             --axon-green: #84bd00;
             --axon-green-hover: #71a300;
             --text-white: #ffffff;
+            --link-blue: #00a8ff;
         }
 
         body {
@@ -32,7 +33,7 @@
             position: relative;
         }
 
-        /* Ajuste da Logo para Texto Branco e Integração */
+        /* Logo integrada ao fundo */
         .logo-box {
             background: transparent;
             display: flex;
@@ -45,7 +46,6 @@
             max-width: 280px;
             height: auto;
             display: block;
-            /* Inverte as cores escuras para branco e mistura com o fundo */
             filter: invert(1) brightness(2);
             mix-blend-mode: screen;
         }
@@ -68,6 +68,7 @@
             max-width: 420px;
             box-sizing: border-box;
             z-index: 2;
+            text-align: center;
         }
 
         .input-group {
@@ -120,6 +121,21 @@
             background: #0056b3;
         }
 
+        /* Estilo do link Esqueceu sua senha */
+        .forgot-password {
+            display: block;
+            margin-top: 25px;
+            color: var(--link-blue);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+
+        .forgot-password:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
         #msg {
             margin-top: 20px;
             font-size: 0.85rem;
@@ -128,7 +144,7 @@
             min-height: 20px;
         }
 
-        /* Rodapé posicionado na base da tela (Estilo Datalife) */
+        /* Rodapé fixo na base da tela */
         .footer-info {
             position: absolute;
             bottom: 20px;
@@ -163,10 +179,12 @@
 
         <button id="btnEntrar">Entrar no Sistema</button>
         
+        <!-- Opção Esqueceu sua senha? abaixo do botão -->
+        <a href="#" class="forgot-password">Esqueceu sua senha?</a>
+        
         <div id="msg"></div>
     </div>
 
-    <!-- Rodapé conforme solicitado -->
     <div class="footer-info">
         <span>suporte@axonengenharia.com.br</span>
         <span>v3.0.0</span>
