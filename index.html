@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>Axon | Inteligência em Engenharia e Segurança do Trabalho</title>
-    <meta name="description" content="Plataforma de gestão integrada para conformidade legal, SST e engenharia especializada.">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
         :root {
             --bg-deep-blue: #020240; 
             --axon-blue-action: #007bff;
             --text-white: #ffffff;
             --input-bg: #f0f4f9;
+            --error-red: #ff4d4d;
+            --success-green: #2ecc71;
         }
-
         body {
             font-family: 'Open Sans', sans-serif;
             background-color: var(--bg-deep-blue);
@@ -31,29 +28,18 @@
             overflow: hidden;
             position: relative;
         }
-
-        /* Logo Reduzida para não espremer a tela */
-        .logo-container {
-            text-align: center;
-            margin-bottom: 5px; /* Reduzido significativamente */
-        }
-
         .logo-img {
-            max-width: 180px; /* Reduzido de 260px para 180px */
-            height: auto;
+            max-width: 180px;
             filter: invert(1) brightness(100%);
             mix-blend-mode: screen;
         }
-
         .sub-title {
             color: var(--text-white);
-            font-size: 1.3rem; /* Levemente menor para harmonia */
+            font-size: 1.3rem;
             font-weight: 300;
-            margin-bottom: 25px; /* Reduzido para aproximar do card */
+            margin: 10px 0 25px;
             text-align: center;
         }
-
-        /* Card de Login com proporções equilibradas */
         .login-card {
             background: white;
             padding: 40px 35px;
@@ -65,12 +51,7 @@
             text-align: center;
             z-index: 2;
         }
-
-        .input-group {
-            margin-bottom: 12px;
-            position: relative;
-        }
-
+        .input-group { margin-bottom: 12px; position: relative; }
         input {
             width: 100%;
             padding: 12px 15px;
@@ -81,22 +62,10 @@
             box-sizing: border-box;
             color: #495057;
         }
-
-        input:focus {
-            outline: none;
-            border-color: var(--axon-blue-action);
-            background-color: #fff;
-        }
-
+        input:focus { outline: none; border-color: var(--axon-blue-action); background-color: #fff; }
         .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 14px;
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 0.9rem;
+            position: absolute; right: 15px; top: 14px; cursor: pointer; color: #6c757d; font-size: 0.9rem;
         }
-
         .btn-access {
             width: 100%;
             padding: 12px;
@@ -108,39 +77,18 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 10px;
-            transition: background 0.2s;
         }
-
-        .btn-access:hover {
-            background-color: #0056b3;
-        }
-
         .forgot-link {
             display: inline-block;
             margin-top: 25px;
             color: #00a8ff;
             text-decoration: none;
             font-size: 0.85rem;
+            cursor: pointer;
         }
-
-        #msg {
-            margin-top: 15px;
-            font-size: 0.85rem;
-            min-height: 20px;
-        }
-
-        /* Rodapé Fixo nas extremidades - Padrão Data Life */
+        #msg { margin-top: 15px; font-size: 0.85rem; min-height: 20px; font-weight: 600; }
         .footer-bar {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 30px;
-            box-sizing: border-box;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.75rem;
-            font-weight: 300;
+            position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; color: rgba(255,255,255,0.4); font-size: 0.75rem;
         }
     </style>
 </head>
@@ -162,85 +110,74 @@
             <i class="fas fa-eye toggle-password" id="eyeIcon"></i>
         </div>
 
-        <button class="btn-access" id="btnEntrar">Entrar no Sistema</button>
+        <button class="btn-access" onclick="login()">Entrar no Sistema</button>
         
-      <a href="#" id="linkSuporte" target="_blank" class="forgot-link">Esqueceu sua senha?</a>
+        <a class="forgot-link" onclick="recuperarSenha()">Esqueceu sua senha?</a>
         
         <div id="msg"></div>
     </div>
 
-    <!-- Rodapé conforme solicitado -->
     <div class="footer-bar">
         <span>suporte@axonengenharia.com.br</span>
         <span>v3.0.0</span>
     </div>
 
     <script>
-        const supabaseUrl = 'https://fhqobgnyiprnkvqspjbg.supabase.co';
-        const supabaseKey = 'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4';
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        const _supabase = supabase.createClient(
+            'https://fhqobgnyiprnkvqspjbg.supabase.co', 
+            'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4'
+        );
 
-        const eyeIcon = document.getElementById('eyeIcon');
-        const passwordInput = document.getElementById('password');
-
-        eyeIcon.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            eyeIcon.classList.toggle('fa-eye');
-            eyeIcon.classList.toggle('fa-eye-slash');
-
-            // Captura os elementos
-const emailInput = document.getElementById('email');
-const linkSuporte = document.getElementById('linkSuporte');
-
-// Função para atualizar o link do WhatsApp dinamicamente
-emailInput.addEventListener('input', () => {
-    const emailDigitado = emailInput.value || "[E-mail não informado]";
-    const numeroWhats = "5563992496379";
-    const mensagemBase = `Olá, preciso recuperar minha senha no Portal Axon. 
-E-mail: ${emailDigitado}`;
-    
-    // Codifica a mensagem para o formato de URL
-    const urlFinal = `https://wa.me/${numeroWhats}?text=${encodeURIComponent(mensagemBase)}`;
-    
-    linkSuporte.href = urlFinal;
-});
-
-// Define um link padrão inicial
-linkSuporte.href = `https://wa.me/5563992496379?text=${encodeURIComponent("Olá, preciso recuperar minha senha no Portal Axon.")}`;
+        // Olho da senha
+        document.getElementById('eyeIcon').addEventListener('click', function() {
+            const pwd = document.getElementById('password');
+            pwd.type = pwd.type === 'password' ? 'text' : 'password';
+            this.classList.toggle('fa-eye-slash');
         });
 
+        // Função de Login Nativa
         async function login() {
             const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
+            const password = document.getElementById('password').value;
             const msg = document.getElementById('msg');
 
-            msg.style.color = "rgba(255,255,255,0.6)";
+            msg.style.color = "rgba(0,0,0,0.5)";
             msg.innerText = "Autenticando...";
 
-            try {
-                const { data, error } = await _supabase
-                    .from('usuarios_axon')
-                    .select('*')
-                    .eq('email', email)
-                    .eq('senha_acesso', pass)
-                    .single();
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
 
-                if (error || !data) {
-                    msg.style.color = "#ff4d4d";
-                    msg.innerText = "Credenciais inválidas.";
-                    return;
-                }
-
-                localStorage.setItem("axon_session", JSON.stringify(data));
+            if (error) {
+                msg.style.color = "var(--error-red)";
+                msg.innerText = "E-mail ou senha incorretos.";
+            } else {
                 window.location.href = "dashboard.html";
-
-            } catch (e) {
-                msg.innerText = "Erro de conexão.";
             }
         }
 
-        document.getElementById('btnEntrar').addEventListener('click', login);
+        // Recuperação de Senha via E-mail
+        async function recuperarSenha() {
+            const email = document.getElementById('email').value.trim();
+            const msg = document.getElementById('msg');
+
+            if (!email) {
+                msg.style.color = "var(--error-red)";
+                msg.innerText = "Digite seu e-mail para receber o link.";
+                return;
+            }
+
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html',
+            });
+
+            if (error) {
+                msg.style.color = "var(--error-red)";
+                msg.innerText = "Erro: " + error.message;
+            } else {
+                msg.style.color = "var(--success-green)";
+                msg.innerText = "E-mail de recuperação enviado!";
+            }
+        }
+
         document.addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
     </script>
 </body>
