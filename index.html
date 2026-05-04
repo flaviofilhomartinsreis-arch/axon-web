@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Axon - Portal de Engenharia</title>
+    <!-- Importação da biblioteca oficial do Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --azul: #1d4363; --verde: #84bd00; }
@@ -14,11 +15,12 @@
         input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: var(--verde); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
         button:hover { background: #71a300; }
-        #msg { color: #d9534f; font-size: 0.85rem; margin-top: 15px; }
+        #msg { color: #d9534f; font-size: 0.85rem; margin-top: 15px; min-height: 20px; }
     </style>
 </head>
 <body>
     <div class="login-card">
+        <!-- A imagem deve estar na mesma pasta no GitHub -->
         <img src="nova_logo_axon.png" alt="Axon Logo" class="logo-img">
         <h2>Portal de Gestão SST</h2>
         <input type="email" id="email" placeholder="E-mail cadastrado">
@@ -28,28 +30,50 @@
     </div>
 
     <script>
+        // Configurações extraídas do seu painel Supabase
         const supabaseUrl = 'https://fhqobgnyiprnkvqspjbg.supabase.co';
-        const supabaseKey = 'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4
-';
+        const supabaseKey = 'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4';
+        
+        // Inicializa o cliente Supabase
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         async function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const msg = document.getElementById('msg');
+            const emailValue = document.getElementById('email').value;
+            const passwordValue = document.getElementById('password').value;
+            const msgElement = document.getElementById('msg');
 
-            const { data, error } = await _supabase
-                .from('usuarios_axon')
-                .select('*')
-                .eq('email', email)
-                .eq('senha_acesso', password)
-                .single();
+            // Limpa mensagens anteriores e avisa que está processando
+            msgElement.innerText = "Verificando...";
+            console.log("Iniciando tentativa de login para:", emailValue);
 
-            if (data) {
-                localStorage.setItem("axon_session", JSON.stringify(data));
-                window.location.href = "dashboard.html";
-            } else {
-                msg.innerText = "Credenciais inválidas para o sistema Axon.";
+            try {
+                // Consulta a tabela usuarios_axon
+                const { data, error } = await _supabase
+                    .from('usuarios_axon')
+                    .select('*')
+                    .eq('email', emailValue)
+                    .eq('senha_acesso', passwordValue)
+                    .single();
+
+                if (error) {
+                    console.error("Erro na consulta:", error.message);
+                    msgElement.innerText = "Credenciais inválidas ou erro de conexão.";
+                    return;
+                }
+
+                if (data) {
+                    console.log("Login autorizado para:", data.empresa_vinculada);
+                    // Salva a sessão localmente para usar no dashboard
+                    localStorage.setItem("axon_session", JSON.stringify(data));
+                    // Redireciona para o painel principal
+                    window.location.href = "dashboard.html";
+                } else {
+                    msgElement.innerText = "Usuário não encontrado.";
+                }
+
+            } catch (err) {
+                console.error("Erro inesperado:", err);
+                msgElement.innerText = "Erro técnico ao acessar o portal.";
             }
         }
     </script>
