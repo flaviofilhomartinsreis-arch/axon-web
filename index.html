@@ -164,7 +164,7 @@
 
         <button class="btn-access" id="btnEntrar">Entrar no Sistema</button>
         
-       <a href="https://wa.me/5563992496379?text=Olá,%20preciso%20recuperar%20minha%20senha%20de%20acesso%20ao%20Portal%20Axon." target="_blank" class="forgot-link">Esqueceu sua senha?</a>
+      <a href="#" id="linkSuporte" target="_blank" class="forgot-link">Esqueceu sua senha?</a>
         
         <div id="msg"></div>
     </div>
@@ -188,6 +188,26 @@
             passwordInput.setAttribute('type', type);
             eyeIcon.classList.toggle('fa-eye');
             eyeIcon.classList.toggle('fa-eye-slash');
+
+            // Captura os elementos
+const emailInput = document.getElementById('email');
+const linkSuporte = document.getElementById('linkSuporte');
+
+// Função para atualizar o link do WhatsApp dinamicamente
+emailInput.addEventListener('input', () => {
+    const emailDigitado = emailInput.value || "[E-mail não informado]";
+    const numeroWhats = "5563992496379";
+    const mensagemBase = `Olá, preciso recuperar minha senha no Portal Axon. 
+E-mail: ${emailDigitado}`;
+    
+    // Codifica a mensagem para o formato de URL
+    const urlFinal = `https://wa.me/${numeroWhats}?text=${encodeURIComponent(mensagemBase)}`;
+    
+    linkSuporte.href = urlFinal;
+});
+
+// Define um link padrão inicial
+linkSuporte.href = `https://wa.me/5563992496379?text=${encodeURIComponent("Olá, preciso recuperar minha senha no Portal Axon.")}`;
         });
 
         async function login() {
