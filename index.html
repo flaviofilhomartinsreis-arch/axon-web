@@ -6,6 +6,8 @@
     <title>Axon - Portal de Gestão SST</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Importação do FontAwesome para o ícone do olho -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-blue: #1d4363;
@@ -34,18 +36,18 @@
             text-align: center;
         }
 
-        /* Container Especial para a Logo */
         .logo-box {
-    background-color: #ffffff;
-    padding: 25px; /* Um pouco mais de respiro para a logo respirar */
-    border-radius: 20px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    margin-bottom: 2rem;
-    border: 1px solid #f0f4f8;
-}
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            border: 1px solid #f0f4f8;
+        }
+
         .logo-img {
             max-width: 180px;
             height: auto;
@@ -57,12 +59,12 @@
             font-size: 1.4rem;
             margin-bottom: 30px;
             font-weight: 700;
-            letter-spacing: -0.5px;
         }
 
         .input-group {
             text-align: left;
             margin-bottom: 20px;
+            position: relative; /* Necessário para posicionar o olho */
         }
 
         .input-group label {
@@ -77,6 +79,7 @@
         input {
             width: 100%;
             padding: 14px;
+            padding-right: 45px; /* Espaço para o ícone não cobrir o texto */
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 1rem;
@@ -92,6 +95,20 @@
             box-shadow: 0 0 0 4px rgba(132, 189, 0, 0.1);
         }
 
+        /* Estilo do Ícone do Olho */
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 38px; /* Ajustado para alinhar com o input abaixo da label */
+            cursor: pointer;
+            color: #94a3b8;
+            transition: 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary-blue);
+        }
+
         button {
             width: 100%;
             padding: 16px;
@@ -104,13 +121,11 @@
             cursor: pointer;
             transition: 0.3s;
             margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(132, 189, 0, 0.2);
         }
 
         button:hover {
             background: var(--axon-green-hover);
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(132, 189, 0, 0.3);
         }
 
         #msg {
@@ -145,6 +160,8 @@
         <div class="input-group">
             <label>Senha de Acesso</label>
             <input type="password" id="password" placeholder="••••••••">
+            <!-- Ícone do Olho -->
+            <i class="fas fa-eye toggle-password" id="eyeIcon"></i>
         </div>
 
         <button id="btnEntrar">Acessar Sistema</button>
@@ -158,6 +175,19 @@
         const supabaseUrl = 'https://fhqobgnyiprnkvqspjbg.supabase.co';
         const supabaseKey = 'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Lógica para mostrar/esconder senha
+        const eyeIcon = document.getElementById('eyeIcon');
+        const passwordInput = document.getElementById('password');
+
+        eyeIcon.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Alterna o ícone entre olho aberto e fechado
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+        });
 
         async function login() {
             const email = document.getElementById('email').value;
