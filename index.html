@@ -6,7 +6,6 @@
     <title>Axon - Portal de Gestão SST</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Importação do FontAwesome para o ícone do olho -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -36,16 +35,16 @@
             text-align: center;
         }
 
+        /* Container da Logo Integrado (Sem contornos ou sombras) */
         .logo-box {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 16px;
+            background: transparent; /* Remove o fundo branco do container */
+            padding: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-            border: 1px solid #f0f4f8;
+            margin-bottom: 20px;
+            border: none; /* Garante que não haja bordas */
+            box-shadow: none; /* Remove a sombra específica da logo */
         }
 
         .logo-img {
@@ -64,7 +63,7 @@
         .input-group {
             text-align: left;
             margin-bottom: 20px;
-            position: relative; /* Necessário para posicionar o olho */
+            position: relative;
         }
 
         .input-group label {
@@ -79,7 +78,7 @@
         input {
             width: 100%;
             padding: 14px;
-            padding-right: 45px; /* Espaço para o ícone não cobrir o texto */
+            padding-right: 45px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 1rem;
@@ -95,11 +94,10 @@
             box-shadow: 0 0 0 4px rgba(132, 189, 0, 0.1);
         }
 
-        /* Estilo do Ícone do Olho */
         .toggle-password {
             position: absolute;
             right: 15px;
-            top: 38px; /* Ajustado para alinhar com o input abaixo da label */
+            top: 38px;
             cursor: pointer;
             color: #94a3b8;
             transition: 0.2s;
@@ -146,6 +144,7 @@
 <body>
 
     <div class="login-card">
+        <!-- Logo sem bordas ou sombras, integrada ao fundo -->
         <div class="logo-box">
             <img src="nova_logo_axon.png" alt="Axon Engenharia" class="logo-img">
         </div>
@@ -160,7 +159,6 @@
         <div class="input-group">
             <label>Senha de Acesso</label>
             <input type="password" id="password" placeholder="••••••••">
-            <!-- Ícone do Olho -->
             <i class="fas fa-eye toggle-password" id="eyeIcon"></i>
         </div>
 
@@ -176,15 +174,12 @@
         const supabaseKey = 'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4';
         const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Lógica para mostrar/esconder senha
         const eyeIcon = document.getElementById('eyeIcon');
         const passwordInput = document.getElementById('password');
 
         eyeIcon.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
-            // Alterna o ícone entre olho aberto e fechado
             eyeIcon.classList.toggle('fa-eye');
             eyeIcon.classList.toggle('fa-eye-slash');
         });
