@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Configuração Profissional do Link -->
     <title>Axon | Inteligência em Engenharia e Segurança do Trabalho</title>
     <meta name="description" content="Plataforma de gestão integrada para conformidade legal, SST e engenharia especializada.">
     
@@ -14,7 +13,6 @@
     
     <style>
         :root {
-            /* O azul escuro exato da referência */
             --bg-deep-blue: #0a0a5e; 
             --axon-green: #84bd00;
             --axon-green-hover: #71a300;
@@ -30,42 +28,44 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* Estilização da Logo para fundo escuro */
+        /* Ajuste da Logo para Integração Total */
         .logo-box {
             background: transparent;
-            padding: 10px;
-            display: inline-flex;
-            align-items: center;
+            display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
         .logo-img {
-            max-width: 220px;
+            max-width: 250px;
             height: auto;
             display: block;
-            /* Filtro para garantir que a logo branca/colorida brilhe no fundo escuro */
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.1));
+            /* O segredo para remover o fundo branco da imagem e mostrar o azul de trás */
+            mix-blend-mode: multiply; 
+            filter: brightness(1.2) contrast(1.1); /* Realça as cores após a mistura */
         }
 
         .portal-title {
             color: var(--text-white);
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            font-weight: 400;
-            letter-spacing: 1px;
+            font-size: 1.4rem;
+            margin: 0 0 35px 0;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            text-align: center;
         }
 
         .login-card {
             background: white;
             padding: 40px;
-            border-radius: 4px; /* Estilo mais quadrado e corporativo como na imagem */
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             width: 100%;
-            max-width: 400px;
-            text-align: center;
+            max-width: 380px;
+            box-sizing: border-box;
         }
 
         .input-group {
@@ -76,12 +76,13 @@
 
         input {
             width: 100%;
-            padding: 12px;
+            padding: 12px 15px;
             border: 1px solid #d1d5db;
             border-radius: 4px;
             font-size: 0.95rem;
             box-sizing: border-box;
             background-color: #f3f4f6;
+            color: #1f2937;
         }
 
         input:focus {
@@ -92,16 +93,17 @@
 
         .toggle-password {
             position: absolute;
-            right: 12px;
+            right: 15px;
             top: 14px;
             cursor: pointer;
             color: #6b7280;
+            z-index: 10;
         }
 
         button {
             width: 100%;
-            padding: 12px;
-            background: #007bff; /* Azul de ação clássico */
+            padding: 14px;
+            background: #007bff;
             color: white;
             border: none;
             border-radius: 4px;
@@ -109,7 +111,7 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 10px;
-            transition: 0.2s;
+            transition: background 0.2s;
         }
 
         button:hover {
@@ -117,19 +119,24 @@
         }
 
         #msg {
-            margin-top: 15px;
+            margin-top: 20px;
             font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
             min-height: 20px;
         }
 
+        /* Alinhamento correto das informações de rodapé */
         .footer-info {
             position: absolute;
-            bottom: 20px;
-            color: rgba(255,255,255,0.6);
-            font-size: 0.8rem;
+            bottom: 25px;
             width: 100%;
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
+            padding: 0 40px;
+            box-sizing: border-box;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -139,7 +146,7 @@
         <img src="nova_logo_axon.png" alt="Axon Engenharia" class="logo-img">
     </div>
     
-    <div class="portal-title">Gestão de Engenharia e Segurança</div>
+    <h1 class="portal-title">Gestão de Engenharia e Segurança</h1>
     
     <div class="login-card">
         <div class="input-group">
@@ -181,7 +188,7 @@
             const pass = document.getElementById('password').value;
             const msg = document.getElementById('msg');
 
-            msg.style.color = "#0a0a5e";
+            msg.style.color = "rgba(255,255,255,0.8)";
             msg.innerText = "Autenticando...";
 
             try {
@@ -193,7 +200,7 @@
                     .single();
 
                 if (error || !data) {
-                    msg.style.color = "#d11212";
+                    msg.style.color = "#ff4d4d";
                     msg.innerText = "Credenciais inválidas.";
                     return;
                 }
