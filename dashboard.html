@@ -2,74 +2,249 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Axon - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Título profissional para a aba do navegador -->
+    <title>Dashboard | Axon Inteligência em Engenharia</title>
+    <meta name="description" content="Painel de controle de conformidade e gestão de documentos SST.">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        :root { --azul: #1d4363; --verde: #84bd00; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f8f9fa; }
-        header { background: var(--azul); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
-        .container { padding: 2rem 5%; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        .btn-download { color: var(--verde); text-decoration: none; font-weight: bold; }
+        :root {
+            /* O azul escuro exato da sua nova identidade visual */
+            --bg-deep-blue: #0a0a5e; 
+            --primary-header: #08084d;
+            --axon-green: #84bd00;
+            --text-white: #ffffff;
+            --danger-red: #ef4444;
+            --warning-orange: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep-blue);
+            margin: 0;
+            color: var(--text-white);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header Corporativo */
+        header { 
+            background: var(--primary-header); 
+            padding: 10px 40px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .header-logo-box {
+            background: white;
+            padding: 5px 12px;
+            border-radius: 4px;
+        }
+
+        .header-logo {
+            height: 35px;
+            display: block;
+        }
+
+        .btn-logout { 
+            background: rgba(255,255,255,0.08); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            padding: 8px 18px; 
+            border-radius: 4px; 
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.15); }
+
+        /* Área Principal */
+        main { 
+            max-width: 1200px; 
+            margin: 40px auto; 
+            padding: 0 20px; 
+        }
+
+        .welcome-section { margin-bottom: 30px; }
+        .welcome-section h1 { 
+            font-size: 1.6rem; 
+            font-weight: 600; 
+            letter-spacing: -0.5px; 
+        }
+
+        /* Container da Tabela (Mantido branco para legibilidade técnica) */
+        .table-container { 
+            background: white; 
+            border-radius: 4px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
+            overflow: hidden; 
+            color: #1e293b;
+        }
+
+        .table-header { 
+            padding: 20px 30px; 
+            border-bottom: 1px solid #f1f5f9; 
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .table-header h3 { margin: 0; color: #0a0a5e; font-size: 1.1rem; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            background: #f8fafc; 
+            padding: 18px 30px; 
+            text-align: left; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            color: #64748b; 
+            letter-spacing: 1px;
+        }
+        td { 
+            padding: 18px 30px; 
+            border-bottom: 1px solid #f1f5f9; 
+            font-size: 0.95rem; 
+        }
+
+        /* Badges de Estado */
+        .badge-uf { 
+            background: #e0f2fe; 
+            color: #0369a1; 
+            padding: 4px 10px; 
+            border-radius: 4px; 
+            font-weight: 700; 
+            font-size: 0.75rem; 
+        }
+
+        /* Status de Vencimento */
+        .vencido { color: var(--danger-red); font-weight: 700; }
+        .atencao { color: var(--warning-orange); font-weight: 700; }
+
+        /* Ação: Visualizar */
+        .btn-action { 
+            color: var(--axon-green); 
+            text-decoration: none; 
+            font-weight: 700; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: 0.2s;
+        }
+        .btn-action:hover { color: var(--axon-green-hover); transform: translateX(3px); }
+
+        @media (max-width: 768px) {
+            th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) { display: none; }
+        }
     </style>
 </head>
 <body>
-    <header>
-        <img src="nova_logo_axon.png" alt="Axon" style="height: 40px;">
-        <button onclick="sair()" style="background:transparent; border:1px solid white; color:white; cursor:pointer; padding:5px 10px; border-radius:5px;">Sair</button>
-    </header>
 
-    <div class="container">
-        <h2 id="titulo-boas-vindas">Bem-vindo à Axon</h2>
-        <div class="card">
-            <h3>Matriz Nacional de Documentos</h3>
-            <table id="tabela-docs">
-                <thead>
-                    <tr>
-                        <th>Documento</th>
-                        <th>Empresa</th>
-                        <th>UF</th>
-                        <th>Vencimento</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+<header>
+    <div class="header-logo-box">
+        <img src="nova_logo_axon.png" class="header-logo" alt="Axon">
+    </div>
+    <button class="btn-logout" onclick="sair()">Sair do Sistema</button>
+</header>
+
+<main>
+    <div class="welcome-section">
+        <h1 id="userName">Carregando painel...</h1>
     </div>
 
-    <script>
-        const supabaseUrl = 'https://fhqobgnyiprnkvqspjbg.supabase.co';
-        const supabaseKey = 'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4';
-        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-        const user = JSON.parse(localStorage.getItem("axon_session"));
-        if (!user) window.location.href = "index.html";
-
-        document.getElementById("titulo-boas-vindas").innerText = "Painel: " + user.empresa_vinculada;
-
-        async function carregar() {
-            let query = _supabase.from('clientes_conformidade').select('*');
-            if (user.nivel_acesso !== 'admin') {
-                query = query.eq('empresa', user.empresa_vinculada);
-            }
-            const { data } = await query;
-            const tbody = document.querySelector("#tabela-docs tbody");
-            tbody.innerHTML = data.map(d => `
+    <div class="table-container">
+        <div class="table-header">
+            <i class="fas fa-folder-open" style="color: #0a0a5e;"></i>
+            <h3>Matriz Nacional de Documentos</h3>
+        </div>
+        <table>
+            <thead>
                 <tr>
-                    <td>${d.documento}</td>
-                    <td>${d.empresa}</td>
-                    <td>${d.estado}</td>
-                    <td>${new Date(d.vencimento).toLocaleDateString()}</td>
-                    <td><a href="${d.url_documento}" target="_blank" class="btn-download">Ver PDF</a></td>
+                    <th>Documento</th>
+                    <th>Empresa</th>
+                    <th>UF</th>
+                    <th>Vencimento</th>
+                    <th>Ações</th>
                 </tr>
-            `).join('');
+            </thead>
+            <tbody id="listaDocs">
+                <!-- Populado via JS -->
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    const supabaseUrl = 'https://fhqobgnyiprnkvqspjbg.supabase.co';
+    const supabaseKey = 'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const user = JSON.parse(localStorage.getItem("axon_session"));
+
+    if (!user) {
+        window.location.href = "index.html";
+    }
+
+    // Atualiza o título dinamicamente com a empresa do usuário
+    document.getElementById('userName').innerText = `Painel: ${user.empresa_vinculada}`;
+
+    async function carregarDocumentos() {
+        let query = _supabase.from('clientes_conformidade').select('*');
+
+        // Se não for admin, filtra apenas os documentos da empresa vinculada
+        if (user.nivel_acesso !== 'admin') {
+            query = query.eq('empresa', user.empresa_vinculada);
         }
-        function sair() { localStorage.removeItem("axon_session"); window.location.href = "index.html"; }
-        carregar();
-    </script>
+
+        const { data, error } = await query;
+        const corpoTabela = document.getElementById('listaDocs');
+        corpoTabela.innerHTML = '';
+
+        if (error) {
+            console.error("Erro ao carregar dados:", error);
+            return;
+        }
+
+        data.forEach(doc => {
+            const dataVenc = new Date(doc.vencimento);
+            const hoje = new Date();
+            const diasParaVencer = (dataVenc - hoje) / (1000 * 60 * 60 * 24);
+            
+            let statusClass = "";
+            if (diasParaVencer < 0) statusClass = "vencido";
+            else if (diasParaVencer < 30) statusClass = "atencao";
+
+            corpoTabela.innerHTML += `
+                <tr>
+                    <td><strong>${doc.documento}</strong></td>
+                    <td>${doc.empresa}</td>
+                    <td><span class="badge-uf">${doc.uf || 'BR'}</span></td>
+                    <td class="${statusClass}">${dataVenc.toLocaleDateString('pt-BR')}</td>
+                    <td>
+                        <a href="${doc.url_documento}" target="_blank" class="btn-action">
+                            <i class="far fa-file-pdf"></i> Visualizar
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function sair() {
+        localStorage.clear();
+        window.location.href = "index.html";
+    }
+
+    carregarDocumentos();
+</script>
+
 </body>
 </html>
