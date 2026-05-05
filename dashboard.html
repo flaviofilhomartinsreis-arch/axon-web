@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Axon</title>
+    <title>Dashboard | Axon SST</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -14,35 +14,51 @@
             --axon-green: #84bd00;
             --text-white: #ffffff;
             --danger-red: #ef4444;
+            --warning-orange: #f59e0b;
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg-deep-blue); margin: 0; color: var(--text-white); }
         header { background: var(--primary-header); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .header-logo { height: 35px; background: white; padding: 5px; border-radius: 4px; }
-        .btn-logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid white; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
-        main { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-        .table-container { background: white; color: #1e293b; border-radius: 8px; overflow: hidden; }
+        .header-logo-box { background: white; padding: 5px 12px; border-radius: 4px; }
+        .header-logo { height: 35px; display: block; }
+        .btn-logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 8px 18px; cursor: pointer; border-radius: 4px; font-weight: 600; }
+        
+        main { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .welcome-section h1 { font-size: 1.6rem; margin-bottom: 30px; }
+
+        .table-container { background: white; color: #1e293b; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; }
-        td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; padding: 18px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: #64748b; letter-spacing: 1px; }
+        td { padding: 18px; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+        
+        .badge-uf { background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
         .vencido { color: var(--danger-red); font-weight: bold; }
-        .btn-action { color: var(--axon-green); text-decoration: none; font-weight: bold; }
+        .atencao { color: var(--warning-orange); font-weight: bold; }
+        .btn-action { color: var(--axon-green); text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        
+        @media (max-width: 768px) { th:nth-child(2), td:nth-child(2) { display: none; } }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="nova_logo_axon.png" class="header-logo" alt="Axon">
-    <button class="btn-logout" onclick="sair()">Sair</button>
+    <div class="header-logo-box">
+        <img src="nova_logo_axon.png" class="header-logo" alt="Axon">
+    </div>
+    <button class="btn-logout" onclick="sair()">Sair do Sistema</button>
 </header>
 
 <main>
-    <h1 id="userName">Carregando...</h1>
+    <div class="welcome-section">
+        <h1 id="userName">Carregando painel...</h1>
+    </div>
+
     <div class="table-container">
         <table>
             <thead>
                 <tr>
                     <th>Documento</th>
                     <th>Empresa</th>
+                    <th>UF</th>
                     <th>Vencimento</th>
                     <th>Ação</th>
                 </tr>
@@ -58,8 +74,8 @@
         'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4'
     );
 
-    // PROTEÇÃO DE ROTA
     const session = JSON.parse(localStorage.getItem("axon_session"));
+
     if (!session) {
         window.location.assign("index.html");
     } else {
@@ -70,19 +86,30 @@
     async function carregarDocumentos() {
         const { data, error } = await _supabase.from('clientes_conformidade').select('*');
         const corpoTabela = document.getElementById('listaDocs');
-        
-        if (error) { console.error(error); return; }
+        corpoTabela.innerHTML = '';
+
+        if (error) { console.error("Erro:", error); return; }
 
         data.forEach(doc => {
             const dataVenc = new Date(doc.vencimento);
-            const isVencido = dataVenc < new Date();
+            const hoje = new Date();
+            const diasRestantes = (dataVenc - hoje) / (1000 * 60 * 60 * 24);
             
+            let statusClass = "";
+            if (diasRestantes < 0) statusClass = "vencido";
+            else if (diasRestantes < 30) statusClass = "atencao";
+
             corpoTabela.innerHTML += `
                 <tr>
-                    <td>${doc.documento}</td>
+                    <td><strong>${doc.documento}</strong></td>
                     <td>${doc.empresa}</td>
-                    <td class="${isVencido ? 'vencido' : ''}">${dataVenc.toLocaleDateString('pt-BR')}</td>
-                    <td><a href="${doc.url_documento}" target="_blank" class="btn-action">Ver PDF</a></td>
+                    <td><span class="badge-uf">${doc.uf || 'BR'}</span></td>
+                    <td class="${statusClass}">${dataVenc.toLocaleDateString('pt-BR')}</td>
+                    <td>
+                        <a href="${doc.url_documento}" target="_blank" class="btn-action">
+                            <i class="far fa-file-pdf"></i> Visualizar
+                        </a>
+                    </td>
                 </tr>
             `;
         });
