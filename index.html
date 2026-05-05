@@ -182,15 +182,18 @@
 
             const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
 
-            if (error) {
+           if (error) {
                 msg.style.color = "var(--error-red)";
                 msg.innerText = "Erro: " + error.message;
             } else {
                 msg.style.color = "var(--success-green)";
                 msg.innerText = "Acesso autorizado! Redirecionando...";
-                setTimeout(() => window.location.href = "/axon-web/dashboard.html", 1000);
+                
+                // Força o caminho completo do repositório
+                setTimeout(() => {
+                    window.location.href = "https://flaviofilhomartinsreis-arch.github.io/axon-web/dashboard.html";
+                }, 1000);
             }
-        }
 
         // Recuperação de Senha Responsiva
         async function recuperarSenha() {
