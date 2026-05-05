@@ -3,236 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Título profissional para a aba do navegador -->
-    <title>Dashboard | Axon Inteligência em Engenharia</title>
-    <meta name="description" content="Painel de controle de conformidade e gestão de documentos SST.">
-
+    <title>Dashboard | Axon</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
         :root {
-            /* O azul escuro exato da sua nova identidade visual */
             --bg-deep-blue: #0a0a5e; 
             --primary-header: #08084d;
             --axon-green: #84bd00;
             --text-white: #ffffff;
             --danger-red: #ef4444;
-            --warning-orange: #f59e0b;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-deep-blue);
-            margin: 0;
-            color: var(--text-white);
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Header Corporativo */
-        header { 
-            background: var(--primary-header); 
-            padding: 10px 40px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .header-logo-box {
-            background: white;
-            padding: 5px 12px;
-            border-radius: 4px;
-        }
-
-        .header-logo {
-            height: 35px;
-            display: block;
-        }
-
-        .btn-logout { 
-            background: rgba(255,255,255,0.08); 
-            color: white; 
-            border: 1px solid rgba(255,255,255,0.2); 
-            padding: 8px 18px; 
-            border-radius: 4px; 
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: 0.2s;
-        }
-        .btn-logout:hover { background: rgba(255,255,255,0.15); }
-
-        /* Área Principal */
-        main { 
-            max-width: 1200px; 
-            margin: 40px auto; 
-            padding: 0 20px; 
-        }
-
-        .welcome-section { margin-bottom: 30px; }
-        .welcome-section h1 { 
-            font-size: 1.6rem; 
-            font-weight: 600; 
-            letter-spacing: -0.5px; 
-        }
-
-        /* Container da Tabela (Mantido branco para legibilidade técnica) */
-        .table-container { 
-            background: white; 
-            border-radius: 4px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); 
-            overflow: hidden; 
-            color: #1e293b;
-        }
-
-        .table-header { 
-            padding: 20px 30px; 
-            border-bottom: 1px solid #f1f5f9; 
-            background: #fff;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .table-header h3 { margin: 0; color: #0a0a5e; font-size: 1.1rem; }
-
+        body { font-family: 'Inter', sans-serif; background: var(--bg-deep-blue); margin: 0; color: var(--text-white); }
+        header { background: var(--primary-header); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .header-logo { height: 35px; background: white; padding: 5px; border-radius: 4px; }
+        .btn-logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid white; padding: 8px 15px; cursor: pointer; border-radius: 4px; }
+        main { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .table-container { background: white; color: #1e293b; border-radius: 8px; overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
-        th { 
-            background: #f8fafc; 
-            padding: 18px 30px; 
-            text-align: left; 
-            font-size: 0.75rem; 
-            text-transform: uppercase; 
-            color: #64748b; 
-            letter-spacing: 1px;
-        }
-        td { 
-            padding: 18px 30px; 
-            border-bottom: 1px solid #f1f5f9; 
-            font-size: 0.95rem; 
-        }
-
-        /* Badges de Estado */
-        .badge-uf { 
-            background: #e0f2fe; 
-            color: #0369a1; 
-            padding: 4px 10px; 
-            border-radius: 4px; 
-            font-weight: 700; 
-            font-size: 0.75rem; 
-        }
-
-        /* Status de Vencimento */
-        .vencido { color: var(--danger-red); font-weight: 700; }
-        .atencao { color: var(--warning-orange); font-weight: 700; }
-
-        /* Ação: Visualizar */
-        .btn-action { 
-            color: var(--axon-green); 
-            text-decoration: none; 
-            font-weight: 700; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 8px; 
-            transition: 0.2s;
-        }
-        .btn-action:hover { color: var(--axon-green-hover); transform: translateX(3px); }
-
-        @media (max-width: 768px) {
-            th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) { display: none; }
-        }
+        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 0.8rem; color: #64748b; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        .vencido { color: var(--danger-red); font-weight: bold; }
+        .btn-action { color: var(--axon-green); text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-logo-box">
-        <img src="nova_logo_axon.png" class="header-logo" alt="Axon">
-    </div>
-    <button class="btn-logout" onclick="sair()">Sair do Sistema</button>
+    <img src="nova_logo_axon.png" class="header-logo" alt="Axon">
+    <button class="btn-logout" onclick="sair()">Sair</button>
 </header>
 
 <main>
-    <div class="welcome-section">
-        <h1 id="userName">Carregando painel...</h1>
-    </div>
-
+    <h1 id="userName">Carregando...</h1>
     <div class="table-container">
-        <div class="table-header">
-            <i class="fas fa-folder-open" style="color: #0a0a5e;"></i>
-            <h3>Matriz Nacional de Documentos</h3>
-        </div>
         <table>
             <thead>
                 <tr>
                     <th>Documento</th>
                     <th>Empresa</th>
-                    <th>UF</th>
                     <th>Vencimento</th>
-                    <th>Ações</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
-            <tbody id="listaDocs">
-                <!-- Populado via JS -->
-            </tbody>
+            <tbody id="listaDocs"></tbody>
         </table>
     </div>
 </main>
 
 <script>
-    const supabaseUrl = 'https://fhqobgnyiprnkvqspjbg.supabase.co';
-    const supabaseKey = 'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4';
-    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const _supabase = supabase.createClient(
+        'https://fhqobgnyiprnkvqspjbg.supabase.co', 
+        'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4'
+    );
 
-    const user = JSON.parse(localStorage.getItem("axon_session"));
-
-    if (!user) {
-        window.location.href = "index.html";
+    // PROTEÇÃO DE ROTA
+    const session = JSON.parse(localStorage.getItem("axon_session"));
+    if (!session) {
+        window.location.assign("index.html");
+    } else {
+        document.getElementById('userName').innerText = `Painel: ${session.empresa_vinculada}`;
+        carregarDocumentos();
     }
 
-    // Atualiza o título dinamicamente com a empresa do usuário
-    document.getElementById('userName').innerText = `Painel: ${user.empresa_vinculada}`;
-
     async function carregarDocumentos() {
-        let query = _supabase.from('clientes_conformidade').select('*');
-
-        // Se não for admin, filtra apenas os documentos da empresa vinculada
-        if (user.nivel_acesso !== 'admin') {
-            query = query.eq('empresa', user.empresa_vinculada);
-        }
-
-        const { data, error } = await query;
+        const { data, error } = await _supabase.from('clientes_conformidade').select('*');
         const corpoTabela = document.getElementById('listaDocs');
-        corpoTabela.innerHTML = '';
-
-        if (error) {
-            console.error("Erro ao carregar dados:", error);
-            return;
-        }
+        
+        if (error) { console.error(error); return; }
 
         data.forEach(doc => {
             const dataVenc = new Date(doc.vencimento);
-            const hoje = new Date();
-            const diasParaVencer = (dataVenc - hoje) / (1000 * 60 * 60 * 24);
+            const isVencido = dataVenc < new Date();
             
-            let statusClass = "";
-            if (diasParaVencer < 0) statusClass = "vencido";
-            else if (diasParaVencer < 30) statusClass = "atencao";
-
             corpoTabela.innerHTML += `
                 <tr>
-                    <td><strong>${doc.documento}</strong></td>
+                    <td>${doc.documento}</td>
                     <td>${doc.empresa}</td>
-                    <td><span class="badge-uf">${doc.uf || 'BR'}</span></td>
-                    <td class="${statusClass}">${dataVenc.toLocaleDateString('pt-BR')}</td>
-                    <td>
-                        <a href="${doc.url_documento}" target="_blank" class="btn-action">
-                            <i class="far fa-file-pdf"></i> Visualizar
-                        </a>
-                    </td>
+                    <td class="${isVencido ? 'vencido' : ''}">${dataVenc.toLocaleDateString('pt-BR')}</td>
+                    <td><a href="${doc.url_documento}" target="_blank" class="btn-action">Ver PDF</a></td>
                 </tr>
             `;
         });
@@ -240,11 +90,8 @@
 
     function sair() {
         localStorage.clear();
-        window.location.href = "index.html";
+        window.location.assign("index.html");
     }
-
-    carregarDocumentos();
 </script>
-
 </body>
 </html>
