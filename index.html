@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Axon | Login</title>
+    <title>Axon | Login Inteligente</title>
+    <!-- Bibliotecas e Fontes -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -37,15 +38,30 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
         .logo-img { max-width: 180px; margin-bottom: 20px; filter: invert(1) brightness(100%); mix-blend-mode: screen; }
-        .input-group { margin-bottom: 15px; position: relative; }
+        
+        .input-group { margin-bottom: 15px; position: relative; width: 100%; }
+        
         input {
             width: 100%;
             padding: 14px;
+            padding-right: 45px; /* Espaço para o olho */
             border: 1px solid #ced4da;
             border-radius: 4px;
             background: var(--input-bg);
             box-sizing: border-box;
+            font-size: 1rem;
         }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6c757d;
+            z-index: 10;
+        }
+
         .btn-access {
             width: 100%;
             padding: 14px;
@@ -55,9 +71,12 @@
             border-radius: 4px;
             font-weight: 600;
             cursor: pointer;
+            transition: background 0.3s;
         }
+        .btn-access:hover { background: #0056b3; }
+
         #msg { margin-top: 15px; font-size: 0.9rem; font-weight: 600; min-height: 20px; }
-        .forgot-link { display: block; margin-top: 20px; color: var(--axon-blue-action); text-decoration: none; cursor: pointer; }
+        .forgot-link { display: block; margin-top: 20px; color: var(--axon-blue-action); text-decoration: none; cursor: pointer; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -66,10 +85,11 @@
     
     <div class="login-card">
         <div class="input-group">
-            <input type="email" id="email" placeholder="E-mail Corporativo">
+            <input type="email" id="email" placeholder="E-mail Corporativo" autocomplete="email">
         </div>
         <div class="input-group">
-            <input type="password" id="password" placeholder="Senha">
+            <input type="password" id="password" placeholder="Senha de Acesso">
+            <i class="fas fa-eye toggle-password" id="eyeIcon"></i>
         </div>
         <button class="btn-access" onclick="login()">Entrar no Sistema</button>
         <div id="msg"></div>
@@ -81,6 +101,18 @@
             'https://fhqobgnyiprnkvqspjbg.supabase.co', 
             'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4'
         );
+
+        // Lógica do Olhinho (Mostrar/Esconder Senha)
+        document.getElementById('eyeIcon').addEventListener('click', function() {
+            const pwd = document.getElementById('password');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                this.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                pwd.type = 'password';
+                this.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
 
         async function login() {
             const email = document.getElementById('email').value.trim();
@@ -102,10 +134,10 @@
                 msg.style.color = "var(--error-red)";
                 msg.innerText = "Erro: " + error.message;
             } else {
-                // SALVANDO A SESSÃO PARA O DASHBOARD LER
+                // Sincronização com o Dashboard
                 const sessionData = {
                     email: data.user.email,
-                    empresa_vinculada: "Axon Engenharia", // Mock: Ajustaremos no banco depois
+                    empresa_vinculada: "Axon Engenharia", 
                     nivel_acesso: "admin"
                 };
                 localStorage.setItem("axon_session", JSON.stringify(sessionData));
@@ -118,13 +150,15 @@
 
         async function recuperarSenha() {
             const email = document.getElementById('email').value.trim();
-            if (!email) { alert("Digite o e-mail primeiro."); return; }
+            if (!email) { alert("Digite o e-mail primeiro no campo correspondente."); return; }
             
             const { error } = await _supabase.auth.resetPasswordForEmail(email, {
                 redirectTo: 'https://flaviofilhomartinsreis-arch.github.io/axon-web/reset-password.html',
             });
-            alert(error ? error.message : "Link enviado ao e-mail!");
+            alert(error ? error.message : "Link de recuperação enviado com sucesso!");
         }
+
+        document.addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
     </script>
 </body>
 </html>
