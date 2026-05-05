@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Axon | Inteligência em Engenharia e Segurança do Trabalho</title>
-    <!-- Supabase JS Library -->
+    <title>Axon | Login</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Google Fonts & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -27,145 +25,63 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
         }
-        .logo-container { text-align: center; margin-bottom: 10px; }
-        .logo-img {
-            max-width: 180px;
-            height: auto;
-            filter: invert(1) brightness(100%);
-            mix-blend-mode: screen;
-        }
-        .sub-title {
-            color: var(--text-white);
-            font-size: 1.2rem;
-            font-weight: 300;
-            margin: 0 0 25px;
-            text-align: center;
-            padding: 0 15px;
-        }
-
-        /* Card de Login Responsivo */
         .login-card {
             background: white;
             padding: 40px 35px;
             border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             width: 90%;
-            max-width: 420px;
+            max-width: 400px;
             box-sizing: border-box;
             text-align: center;
-            z-index: 2;
-            margin: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
-
+        .logo-img { max-width: 180px; margin-bottom: 20px; filter: invert(1) brightness(100%); mix-blend-mode: screen; }
         .input-group { margin-bottom: 15px; position: relative; }
         input {
             width: 100%;
-            padding: 14px 15px;
+            padding: 14px;
             border: 1px solid #ced4da;
             border-radius: 4px;
-            font-size: 1rem;
-            background-color: var(--input-bg);
+            background: var(--input-bg);
             box-sizing: border-box;
-            color: #495057;
-            transition: all 0.3s;
         }
-        input:focus { outline: none; border-color: var(--axon-blue-action); background-color: #fff; box-shadow: 0 0 0 3px rgba(0,123,255,0.1); }
-        
-        .toggle-password {
-            position: absolute; right: 15px; top: 16px; cursor: pointer; color: #6c757d;
-        }
-        
         .btn-access {
             width: 100%;
             padding: 14px;
-            background-color: var(--axon-blue-action);
+            background: var(--axon-blue-action);
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.3s;
         }
-        .btn-access:hover { background-color: #0056b3; }
-
-        .forgot-link {
-            display: inline-block;
-            margin-top: 25px;
-            color: var(--axon-blue-action);
-            text-decoration: none;
-            font-size: 0.9rem;
-            cursor: pointer;
-            font-weight: 400;
-        }
-        .forgot-link:hover { text-decoration: underline; }
-
-        #msg { margin-top: 20px; font-size: 0.9rem; min-height: 20px; font-weight: 600; }
-
-        .footer-bar {
-            position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; color: rgba(255,255,255,0.4); font-size: 0.75rem;
-        }
-
-        /* Ajustes Mobile */
-        @media (max-width: 480px) {
-            .login-card { padding: 30px 20px; }
-            .sub-title { font-size: 1rem; }
-            .logo-img { max-width: 150px; }
-            .footer-bar { flex-direction: column; align-items: center; gap: 5px; }
-        }
+        #msg { margin-top: 15px; font-size: 0.9rem; font-weight: 600; min-height: 20px; }
+        .forgot-link { display: block; margin-top: 20px; color: var(--axon-blue-action); text-decoration: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="logo-container">
-        <!-- Certifique-se de que o arquivo da logo está no repositório -->
-        <img src="nova_logo_axon.png" alt="Axon Engenharia" class="logo-img">
-    </div>
-    
-    <div class="sub-title">Gestão de Engenharia e Segurança</div>
+    <img src="nova_logo_axon.png" alt="Axon" class="logo-img">
     
     <div class="login-card">
         <div class="input-group">
-            <input type="email" id="email" placeholder="E-mail Corporativo" autocomplete="email">
+            <input type="email" id="email" placeholder="E-mail Corporativo">
         </div>
-
         <div class="input-group">
-            <input type="password" id="password" placeholder="Senha de Acesso">
-            <i class="fas fa-eye toggle-password" id="eyeIcon"></i>
+            <input type="password" id="password" placeholder="Senha">
         </div>
-
         <button class="btn-access" onclick="login()">Entrar no Sistema</button>
-        
         <div id="msg"></div>
-
         <a class="forgot-link" onclick="recuperarSenha()">Esqueceu sua senha?</a>
     </div>
 
-    <div class="footer-bar">
-        <span>suporte@axonengenharia.com.br</span>
-        <span>v3.1.0</span>
-    </div>
-
     <script>
-        // Configuração do Supabase
         const _supabase = supabase.createClient(
             'https://fhqobgnyiprnkvqspjbg.supabase.co', 
             'sb_publishable_QlhA74Sf-RpMHyopN6Ftow_g3UvFNp4'
         );
 
-        // Toggle Visualização de Senha
-        document.getElementById('eyeIcon').addEventListener('click', function() {
-            const pwd = document.getElementById('password');
-            const type = pwd.getAttribute('type') === 'password' ? 'text' : 'password';
-            pwd.setAttribute('type', type);
-            this.classList.toggle('fa-eye-slash');
-        });
-
-        // Login Nativa Supabase (Fluxo B)
         async function login() {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
@@ -182,49 +98,33 @@
 
             const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
 
-           if (error) {
+            if (error) {
                 msg.style.color = "var(--error-red)";
                 msg.innerText = "Erro: " + error.message;
             } else {
+                // SALVANDO A SESSÃO PARA O DASHBOARD LER
+                const sessionData = {
+                    email: data.user.email,
+                    empresa_vinculada: "Axon Engenharia", // Mock: Ajustaremos no banco depois
+                    nivel_acesso: "admin"
+                };
+                localStorage.setItem("axon_session", JSON.stringify(sessionData));
+
                 msg.style.color = "var(--success-green)";
                 msg.innerText = "Acesso autorizado! Redirecionando...";
-                
-                // Força o caminho completo do repositório
-                setTimeout(() => {
-                    window.location.assign("dashboard.html");
-                }, 1000);
-            }
-
-        // Recuperação de Senha Responsiva
-        async function recuperarSenha() {
-            const email = document.getElementById('email').value.trim();
-            const msg = document.getElementById('msg');
-
-            if (!email) {
-                msg.style.color = "var(--error-red)";
-                msg.innerText = "Digite seu e-mail acima primeiro.";
-                return;
-            }
-
-            // URL corrigida para o repositório axon-web
-            const redirectUrl = 'https://flaviofilhomartinsreis-arch.github.io/axon-web/reset-password.html';
-
-            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: redirectUrl,
-            });
-
-            if (error) {
-                msg.style.color = "var(--error-red)";
-                msg.innerText = error.message.includes("rate limit") ? 
-                    "Muitas tentativas. Aguarde um momento." : "Erro: " + error.message;
-            } else {
-                msg.style.color = "var(--success-green)";
-                msg.innerText = "Link de recuperação enviado ao e-mail!";
+                setTimeout(() => window.location.assign("dashboard.html"), 1000);
             }
         }
 
-        // Suporte ao Enter no teclado
-        document.addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
+        async function recuperarSenha() {
+            const email = document.getElementById('email').value.trim();
+            if (!email) { alert("Digite o e-mail primeiro."); return; }
+            
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: 'https://flaviofilhomartinsreis-arch.github.io/axon-web/reset-password.html',
+            });
+            alert(error ? error.message : "Link enviado ao e-mail!");
+        }
     </script>
 </body>
 </html>
